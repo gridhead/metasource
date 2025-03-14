@@ -2,44 +2,34 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
 	"metasource/metasource/models"
 	"metasource/metasource/runner"
 	"sync"
 )
 
 func main() {
-	var rslt_metadata *models.Primary
+	var rslt_primary *models.Primary
 	var rslt_other *models.Other
-	var expt error
 	var wait sync.WaitGroup
 
-	wait.Add(1)
-	rslt_metadata, expt = runner.ImportPrimary(&wait)
-	if expt != nil {
-		slog.Log(nil, slog.LevelError, "File could not be loaded")
-		return
-	}
+	wait.Add(2)
+	go runner.ImportPrimary(&wait, &rslt_primary)
+	go runner.ImportOther(&wait, &rslt_other)
 	wait.Wait()
 
-	wait.Add(1)
-	rslt_other, expt = runner.ImportOther(&wait)
-	if expt != nil {
-		slog.Log(nil, slog.LevelError, "File could not be loaded")
-		return
-	}
-	wait.Wait()
-
-	for _, unit := range rslt_metadata.List {
-		if unit.Name == "obserware" {
-			fmt.Println(unit)
+	if rslt_primary != nil {
+		for _, unit := range rslt_primary.List {
+			if unit.Name == "obserware" {
+				fmt.Println(unit)
+			}
 		}
 	}
 
-	for _, unit := range rslt_other.List {
-		if unit.Name == "obserware" {
-			fmt.Println(unit)
+	if rslt_other != nil {
+		for _, unit := range rslt_other.List {
+			if unit.Name == "obserware" {
+				fmt.Println(unit)
+			}
 		}
 	}
-
 }

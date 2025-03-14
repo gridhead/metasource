@@ -10,7 +10,9 @@ import (
 	"sync"
 )
 
-func ImportPrimary(wait *sync.WaitGroup) (*models.Primary, error) {
+func ImportPrimary(wait *sync.WaitGroup, rslt_primary **models.Primary) {
+	defer wait.Done()
+
 	var rslt models.Primary
 	var expt error
 	var file *os.File
@@ -20,7 +22,6 @@ func ImportPrimary(wait *sync.WaitGroup) (*models.Primary, error) {
 	file, expt = os.Open("/home/fedohide-origin/projects/metasource/rawhide/10beaa5fb8bb9b8710f4608ea9bf84aff2fb68e5efc7e82bf12b421867ad3d8f-primary.xml")
 	if expt != nil {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("File could not be loaded. %s.", expt.Error()))
-		return &rslt, expt
 	}
 
 	data = bufio.NewReader(file)
@@ -28,13 +29,12 @@ func ImportPrimary(wait *sync.WaitGroup) (*models.Primary, error) {
 	expt = deco.Decode(&rslt)
 	if expt != nil {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("File could not be parsed. %s.", expt.Error()))
-		return &rslt, expt
 	}
 
 	expt = file.Close()
 	if expt != nil {
-		return &rslt, expt
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("File could not be closed. %s.", expt.Error()))
 	}
 
-	return &rslt, nil
+	*rslt_primary = &rslt
 }
