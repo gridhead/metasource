@@ -2,7 +2,7 @@ package models
 
 import "encoding/xml"
 
-type Metadata struct {
+type Primary struct {
 	XMLName  xml.Name      `xml:"metadata"`
 	XMLNS    string        `xml:"xmlns,attr"`
 	XMLNSRPM string        `xml:"xmlns:rpm,attr"`
