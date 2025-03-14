@@ -28,24 +28,28 @@ type UnitPrimary struct {
 }
 
 type Checksum struct {
-	Type  string `xml:"type,attr"`
-	PkgID string `xml:"pkgid,attr"`
-	Data  string `xml:",chardata"`
+	XMLName xml.Name `xml:"checksum"`
+	Type    string   `xml:"type,attr"`
+	PkgID   string   `xml:"pkgid,attr"`
+	Data    string   `xml:",chardata"`
 }
 
 type Time struct {
-	File  uint64 `xml:"file,attr"`
-	Build uint64 `xml:"build,attr"`
+	XMLName xml.Name `xml:"time"`
+	File    uint64   `xml:"file,attr"`
+	Build   uint64   `xml:"build,attr"`
 }
 
 type Size struct {
-	Package   uint64 `xml:"package,attr"`
-	Installed uint64 `xml:"installed,attr"`
-	Archive   uint64 `xml:"archive,attr"`
+	XMLName   xml.Name `xml:"size"`
+	Package   uint64   `xml:"package,attr"`
+	Installed uint64   `xml:"installed,attr"`
+	Archive   uint64   `xml:"archive,attr"`
 }
 
 type Location struct {
-	Href string `xml:"href,attr"`
+	XMLName xml.Name `xml:"location"`
+	Href    string   `xml:"href,attr"`
 }
 
 type Format struct {
@@ -56,24 +60,32 @@ type Format struct {
 	BuildHost   string      `xml:"http://linux.duke.edu/metadata/rpm buildhost"`
 	SourceRPM   string      `xml:"http://linux.duke.edu/metadata/rpm sourcerpm"`
 	HeaderRange HeaderRange `xml:"http://linux.duke.edu/metadata/rpm header-range"`
-	Provides    Entries     `xml:"http://linux.duke.edu/metadata/rpm provides"`
-	Requires    Entries     `xml:"http://linux.duke.edu/metadata/rpm requires"`
-	Files       []string    `xml:"http://linux.duke.edu/metadata/rpm file"`
+	Provides    Provides    `xml:"http://linux.duke.edu/metadata/rpm provides"`
+	Requires    Requires    `xml:"http://linux.duke.edu/metadata/rpm requires"`
+	Files       []string    `xml:"files"`
 }
 
 type HeaderRange struct {
-	Start uint64 `xml:"start,attr"`
-	End   uint64 `xml:"end,attr"`
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm header-range"`
+	Start   uint64   `xml:"start,attr"`
+	End     uint64   `xml:"end,attr"`
 }
 
-type Entries struct {
-	Entries []Entry `xml:"http://linux.duke.edu/metadata/rpm entry"`
+type Provides struct {
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm provides"`
+	EntriesBase
+}
+
+type Requires struct {
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm requires"`
+	EntriesBase
 }
 
 type Entry struct {
-	Name  string `xml:"name,attr"`
-	Flags string `xml:"flags,attr,omitempty"`
-	Epoch string `xml:"epoch,attr,omitempty"`
-	Ver   string `xml:"ver,attr,omitempty"`
-	Rel   string `xml:"rel,attr,omitempty"`
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm entry"`
+	Name    string   `xml:"name,attr"`
+	Flags   string   `xml:"flags,attr,omitempty"`
+	Epoch   string   `xml:"epoch,attr,omitempty"`
+	Ver     string   `xml:"ver,attr,omitempty"`
+	Rel     string   `xml:"rel,attr,omitempty"`
 }

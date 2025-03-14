@@ -3,18 +3,14 @@ package models
 import "encoding/xml"
 
 type Other struct {
-	XMLName xml.Name    `xml:"otherdata"`
-	XMLNS   string      `xml:"xmlns,attr"`
-	Package uint64      `xml:"package,attr"`
-	List    []UnitOther `xml:"package"`
+	XMLName  xml.Name    `xml:"otherdata"`
+	XMLNS    string      `xml:"xmlns,attr"`
+	Packages uint64      `xml:"packages,attr"`
+	List     []UnitOther `xml:"package"`
 }
 
 type UnitOther struct {
-	XMLName   xml.Name    `xml:"package"`
-	PkgID     string      `xml:"pkgid,attr"`
-	Name      string      `xml:"name,attr"`
-	Arch      string      `xml:"arch,attr"`
-	Version   Version     `xml:"version,attr"`
+	UnitBase
 	Changelog []Changelog `xml:"changelog"`
 }
 
@@ -23,4 +19,8 @@ type Changelog struct {
 	Author  string   `xml:"author,attr"`
 	Date    uint64   `xml:"date,attr"`
 	Data    string   `xml:",chardata"`
+}
+
+type EntriesBase struct {
+	Entries []Entry `xml:"http://linux.duke.edu/metadata/rpm entry"`
 }
