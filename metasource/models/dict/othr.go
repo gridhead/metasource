@@ -1,7 +1,7 @@
-package json
+package dict
 
-type Other struct {
-	Repo
+type UnitOther struct {
+	Repo       string      `json:"repo"`
 	Changelogs []Changelog `json:"changelogs"`
 }
 

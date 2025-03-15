@@ -1,8 +1,8 @@
-package json
+package dict
 
 type Primary struct {
 	Version
-	Repo
+	Repo        string     `json:"repo"`
 	Arch        string     `json:"arch"`
 	Summary     string     `json:"summary"`
 	Description string     `json:"description"`

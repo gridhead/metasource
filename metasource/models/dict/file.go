@@ -1,7 +1,7 @@
-package json
+package dict
 
 type Files struct {
-	Repo
+	Repo  string `json:"repo"`
 	Files []File `json:"files"`
 }
 
