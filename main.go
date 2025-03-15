@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log/slog"
+	"metasource/metasource/config"
 	"metasource/metasource/routes"
 	"net/http"
 )
@@ -37,7 +38,9 @@ func main() {
 	var server *http.Server
 	var expt error
 
-	server = &http.Server{Addr: ":8080", Handler: http.DefaultServeMux}
+	config.SetLogger()
+
+	server = &http.Server{Addr: ":8080", Handler: routes.Logger(http.DefaultServeMux)}
 
 	http.HandleFunc("/rawhide/changelog/", routes.RetrieveChangelog)
 
