@@ -42,7 +42,8 @@ func main() {
 
 	server = &http.Server{Addr: ":8080", Handler: routes.Logger(http.DefaultServeMux)}
 
-	http.HandleFunc("/rawhide/changelog/", routes.RetrieveChangelog)
+	http.HandleFunc("/rawhide/changelog/", routes.RetrieveOther)
+	http.HandleFunc("/rawhide/pkg/", routes.RetrievePrimary)
 
 	expt = server.ListenAndServe()
 	if expt != nil {
