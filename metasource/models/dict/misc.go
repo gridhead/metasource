@@ -7,7 +7,9 @@ type Version struct {
 }
 
 type UnitBase struct {
-	Version
-	Name  string   `json:"name"`
-	Flags []string `json:"flags"`
+	Epoch   string `json:"epoch"`
+	Version string `json:"version"`
+	Release string `json:"release"`
+	Name    string `json:"name"`
+	Flags   string `json:"flags"`
 }

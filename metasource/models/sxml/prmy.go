@@ -62,8 +62,14 @@ type Format struct {
 	BuildHost   string      `xml:"http://linux.duke.edu/metadata/rpm buildhost"`
 	SourceRPM   string      `xml:"http://linux.duke.edu/metadata/rpm sourcerpm"`
 	HeaderRange HeaderRange `xml:"http://linux.duke.edu/metadata/rpm header-range"`
+	Supplements Supplements `xml:"http://linux.duke.edu/metadata/rpm supplements"`
+	Recommends  Recommends  `xml:"http://linux.duke.edu/metadata/rpm recommends"`
+	Conflicts   Conflicts   `xml:"http://linux.duke.edu/metadata/rpm conflicts"`
+	Obsoletes   Obsoletes   `xml:"http://linux.duke.edu/metadata/rpm obsoletes"`
 	Provides    Provides    `xml:"http://linux.duke.edu/metadata/rpm provides"`
 	Requires    Requires    `xml:"http://linux.duke.edu/metadata/rpm requires"`
+	Enhances    Enhances    `xml:"http://linux.duke.edu/metadata/rpm enhances"`
+	Suggests    Suggests    `xml:"http://linux.duke.edu/metadata/rpm suggests"`
 	Files       []string    `xml:"files"`
 }
 
@@ -73,6 +79,26 @@ type HeaderRange struct {
 	End     uint64   `xml:"end,attr"`
 }
 
+type Supplements struct {
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm supplements"`
+	EntriesBase
+}
+
+type Recommends struct {
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm recommends"`
+	EntriesBase
+}
+
+type Conflicts struct {
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm conflicts"`
+	EntriesBase
+}
+
+type Obsoletes struct {
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm obsoletes"`
+	EntriesBase
+}
+
 type Provides struct {
 	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm provides"`
 	EntriesBase
@@ -80,6 +106,16 @@ type Provides struct {
 
 type Requires struct {
 	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm requires"`
+	EntriesBase
+}
+
+type Enhances struct {
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm enhances"`
+	EntriesBase
+}
+
+type Suggests struct {
+	XMLName xml.Name `xml:"http://linux.duke.edu/metadata/rpm suggests"`
 	EntriesBase
 }
 
