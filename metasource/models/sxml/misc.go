@@ -1,4 +1,4 @@
-package models
+package sxml
 
 import "encoding/xml"
 

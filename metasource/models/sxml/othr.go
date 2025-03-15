@@ -1,6 +1,8 @@
-package models
+package sxml
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+)
 
 type Other struct {
 	XMLName  xml.Name    `xml:"otherdata"`

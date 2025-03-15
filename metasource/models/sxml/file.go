@@ -1,6 +1,8 @@
-package models
+package sxml
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+)
 
 type FileList struct {
 	XMLName  xml.Name       `xml:"filelists"`

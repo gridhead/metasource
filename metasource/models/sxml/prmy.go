@@ -1,6 +1,8 @@
-package models
+package sxml
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+)
 
 type Primary struct {
 	XMLName  xml.Name      `xml:"metadata"`
