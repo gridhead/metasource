@@ -19,4 +19,5 @@ type UnitFileList struct {
 type FileName struct {
 	XMLName xml.Name `xml:"file"`
 	Data    string   `xml:",chardata"`
+	Type    string   `xml:"type,attr"`
 }

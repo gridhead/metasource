@@ -1,6 +1,6 @@
 package dict
 
-type Files struct {
+type UnitFileList struct {
 	Repo  string `json:"repo"`
 	Files []File `json:"files"`
 }
