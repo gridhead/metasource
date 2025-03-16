@@ -75,6 +75,7 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 		CoPackages:  []string{rslt_primary.Name},
 	}
 
+	rslt.Supplements = []dict.UnitBase{}
 	for _, item := range rslt_primary.Format.Supplements.Entries {
 		utbs = dict.UnitBase{
 			Version: item.Ver,
@@ -86,6 +87,7 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 		rslt.Supplements = append(rslt.Supplements, utbs)
 	}
 
+	rslt.Recommends = []dict.UnitBase{}
 	for _, item := range rslt_primary.Format.Recommends.Entries {
 		utbs = dict.UnitBase{
 			Version: item.Ver,
@@ -97,6 +99,7 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 		rslt.Recommends = append(rslt.Recommends, utbs)
 	}
 
+	rslt.Conflicts = []dict.UnitBase{}
 	for _, item := range rslt_primary.Format.Conflicts.Entries {
 		utbs = dict.UnitBase{
 			Version: item.Ver,
@@ -108,6 +111,7 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 		rslt.Conflicts = append(rslt.Conflicts, utbs)
 	}
 
+	rslt.Obsoletes = []dict.UnitBase{}
 	for _, item := range rslt_primary.Format.Obsoletes.Entries {
 		utbs = dict.UnitBase{
 			Version: item.Ver,
@@ -119,6 +123,7 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 		rslt.Obsoletes = append(rslt.Obsoletes, utbs)
 	}
 
+	rslt.Provides = []dict.UnitBase{}
 	for _, item := range rslt_primary.Format.Provides.Entries {
 		utbs = dict.UnitBase{
 			Version: item.Ver,
@@ -130,6 +135,7 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 		rslt.Provides = append(rslt.Provides, utbs)
 	}
 
+	rslt.Requires = []dict.UnitBase{}
 	for _, item := range rslt_primary.Format.Requires.Entries {
 		utbs = dict.UnitBase{
 			Version: item.Ver,
@@ -141,6 +147,7 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 		rslt.Requires = append(rslt.Requires, utbs)
 	}
 
+	rslt.Enhances = []dict.UnitBase{}
 	for _, item := range rslt_primary.Format.Enhances.Entries {
 		utbs = dict.UnitBase{
 			Version: item.Ver,
@@ -152,6 +159,7 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 		rslt.Enhances = append(rslt.Enhances, utbs)
 	}
 
+	rslt.Suggests = []dict.UnitBase{}
 	for _, item := range rslt_primary.Format.Suggests.Entries {
 		utbs = dict.UnitBase{
 			Version: item.Ver,
