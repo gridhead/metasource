@@ -40,7 +40,7 @@ func main() {
 
 	config.SetLogger()
 
-	server = &http.Server{Addr: ":8080", Handler: routes.Logger(http.DefaultServeMux)}
+	server = &http.Server{Addr: ":8080", Handler: config.Logger(http.DefaultServeMux)}
 
 	http.HandleFunc("/rawhide/changelog/", routes.RetrieveOther)
 	http.HandleFunc("/rawhide/pkg/", routes.RetrievePrimary)
@@ -51,5 +51,4 @@ func main() {
 	if expt != nil {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
 	}
-
 }
