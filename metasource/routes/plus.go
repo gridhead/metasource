@@ -13,36 +13,25 @@ import (
 )
 
 func RetrievePlus(w http.ResponseWriter, r *http.Request) {
-	var name string
-	var task string
-	var list []string
+	var name, task, tkut string
+	var jobs, list []string
 	var rslt_plus *[]sxml.UnitPrimary
 	var wait sync.WaitGroup
-	var rslt *[]dict.UnitPrimary
+	var rslt []dict.UnitPrimary
 	var expt error
-	var utbs dict.UnitBase
-	var jobs []string
 	var okay bool
-	var tkut string
 
-	rslt = &[]dict.UnitPrimary{}
-
+	rslt = []dict.UnitPrimary{}
 	jobs = []string{"suggests", "enhances", "requires", "provides", "obsoletes", "conflicts", "recommends", "supplements"}
-
 	list = strings.Split(r.URL.Path, "/")
 
 	if len(list) != 4 {
-		w.WriteHeader(http.StatusBadRequest)
-		_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)))
-		if expt != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)))
-			return
-		}
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Malformed request", r.Method, r.RequestURI, http.StatusBadRequest))
 		return
 	}
 
-	task = list[2]
+	task = strings.TrimSpace(list[2])
 	for _, tkut = range jobs {
 		if task == tkut {
 			okay = true
@@ -51,25 +40,15 @@ func RetrievePlus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !okay {
-		w.WriteHeader(http.StatusBadRequest)
-		_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)))
-		if expt != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)))
-			return
-		}
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Invalid operation", r.Method, r.RequestURI, http.StatusBadRequest))
 		return
 	}
 
-	name = list[3]
+	name = strings.TrimSpace(list[3])
 	if name == "" {
-		w.WriteHeader(http.StatusNotFound)
-		_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)))
-		if expt != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)))
-			return
-		}
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Absent package", r.Method, r.RequestURI, http.StatusNotFound))
 		return
 	}
 
@@ -78,18 +57,14 @@ func RetrievePlus(w http.ResponseWriter, r *http.Request) {
 	wait.Wait()
 
 	if rslt_plus == nil {
-		w.WriteHeader(http.StatusNotFound)
-		_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)))
-		if expt != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)))
-			return
-		}
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Absent result", r.Method, r.RequestURI, http.StatusNotFound))
 		return
 	}
 
 	for _, unit := range *rslt_plus {
 		var data dict.UnitPrimary
+		var utbs dict.UnitBase
 
 		data = dict.UnitPrimary{
 			Repo:        "release",
@@ -200,17 +175,15 @@ func RetrievePlus(w http.ResponseWriter, r *http.Request) {
 			data.Suggests = append(data.Suggests, utbs)
 		}
 
-		*rslt = append(*rslt, data)
+		rslt = append(rslt, data)
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-
 	expt = json.NewEncoder(w).Encode(rslt)
-
 	if expt != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("JSON could not be marshalled. %s", expt.Error()))
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Marshalling failed", r.Method, r.RequestURI, http.StatusInternalServerError))
 		return
 	}
+	slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] <%s> %d - Result dispatched", r.Method, r.RequestURI, http.StatusOK))
 }
