@@ -44,6 +44,7 @@ func main() {
 
 	http.HandleFunc("/rawhide/changelog/", routes.RetrieveOther)
 	http.HandleFunc("/rawhide/pkg/", routes.RetrievePrimary)
+	http.HandleFunc("/rawhide/files/", routes.RetrieveFileList)
 
 	expt = server.ListenAndServe()
 	if expt != nil {
