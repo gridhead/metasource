@@ -40,7 +40,7 @@ func main() {
 
 	config.SetLogger()
 
-	server = &http.Server{Addr: ":8080", Handler: config.Logger(http.DefaultServeMux)}
+	server = &http.Server{Addr: ":8080", Handler: http.DefaultServeMux}
 
 	http.HandleFunc("/rawhide/changelog/", routes.RetrieveOther)
 	http.HandleFunc("/rawhide/pkg/", routes.RetrievePrimary)

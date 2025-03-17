@@ -22,27 +22,16 @@ func RetrieveOther(w http.ResponseWriter, r *http.Request) {
 
 	list = strings.Split(r.URL.Path, "/")
 
-	if len(list) > 3 {
-		name = list[3]
-	} else {
-		w.WriteHeader(http.StatusNotFound)
-		_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)))
-		if expt != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)))
-			return
-		}
+	if len(list) != 4 {
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Malformed request", r.Method, r.RequestURI, http.StatusBadRequest))
 		return
 	}
 
+	name = strings.TrimSpace(list[3])
 	if name == "" {
-		w.WriteHeader(http.StatusNotFound)
-		_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)))
-		if expt != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)))
-			return
-		}
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Absent package", r.Method, r.RequestURI, http.StatusNotFound))
 		return
 	}
 
@@ -51,13 +40,8 @@ func RetrieveOther(w http.ResponseWriter, r *http.Request) {
 	wait.Wait()
 
 	if rslt_other == nil {
-		w.WriteHeader(http.StatusNotFound)
-		_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)))
-		if expt != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, expt = fmt.Fprintf(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)))
-			return
-		}
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Absent result", r.Method, r.RequestURI, http.StatusNotFound))
 		return
 	}
 
@@ -69,12 +53,11 @@ func RetrieveOther(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-
 	expt = json.NewEncoder(w).Encode(rslt)
 	if expt != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("JSON could not be marshalled. %s", expt.Error()))
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Marshalling failed", r.Method, r.RequestURI, http.StatusInternalServerError))
 		return
 	}
+	slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] <%s> %d - Result dispatched", r.Method, r.RequestURI, http.StatusOK))
 }
