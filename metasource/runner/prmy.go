@@ -1,11 +1,10 @@
 package runner
 
 import (
-	"bufio"
 	"encoding/xml"
 	"fmt"
-	"io"
-	"log/slog"
+	"github.com/antchfx/xmlquery"
+	"log"
 	"metasource/metasource/models/sxml"
 	"os"
 	"sync"
@@ -14,48 +13,73 @@ import (
 func ImportPrimary(wait *sync.WaitGroup, rslt_primary **sxml.UnitPrimary, name *string) {
 	defer wait.Done()
 
-	var expt error
 	var file *os.File
-	var data *bufio.Reader
-	var deco *xml.Decoder
-	var chip xml.Token
+	var data []byte
 
-	file, expt = os.Open("/home/fedohide-origin/projects/metasource/rawhide/10beaa5fb8bb9b8710f4608ea9bf84aff2fb68e5efc7e82bf12b421867ad3d8f-primary.xml")
-	if expt != nil {
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("File could not be loaded. %s.", expt.Error()))
-		return
+	filePath := "/home/fedohide-origin/projects/metasource/rawhide/10beaa5fb8bb9b8710f4608ea9bf84aff2fb68e5efc7e82bf12b421867ad3d8f-primary.xml"
+
+	// Open the XML file
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Fatalf("File could not be loaded: %s", err)
 	}
 	defer file.Close()
 
-	data = bufio.NewReader(file)
-	deco = xml.NewDecoder(data)
+	// STREAM
+	//
+	//doc, err := xmlquery.CreateStreamParser(file, "/metadata/package", fmt.Sprintf("/metadata/package[name='%s']", *name))
+	//
+	//
+	//if err != nil {
+	//	log.Fatalf("File could not be parsed: %s", err)
+	//}
+	//
+	//for {
+	//	n, err := doc.Read()
+	//	if err == io.EOF {
+	//		break
+	//	}
+	//	if err != nil {
+	//		log.Fatalf("File could not be parsed: %s", err)
+	//	}
+	//
+	//	fmt.Println(n.OutputXML(true))
+	//
+	//	data = []byte(n.OutputXML(true))
+	//	_ = xml.Unmarshal(data, rslt_primary)
+	//
+	//	break
+	//}
 
-	for {
-		chip, expt = deco.Token()
-		if expt != nil {
-			if expt != io.EOF {
-				slog.Log(nil, slog.LevelError, fmt.Sprintf("File could not be parsed. %s.", expt.Error()))
-				return
-			}
-			break
-		}
+	doc, err := xmlquery.Parse(file)
 
-		switch se := chip.(type) {
-		case xml.StartElement:
-			if se.Name.Local == "package" {
-				var item sxml.UnitPrimary
-				expt = deco.DecodeElement(&item, &se)
-				if expt != nil {
-					slog.Log(nil, slog.LevelError, fmt.Sprintf("File could not be solved. %s.", expt.Error()))
-					return
-				}
-				if item.Name == *name {
-					if rslt_primary != nil {
-						*rslt_primary = &item
-					}
-					return
-				}
-			}
-		}
-	}
+	// Find all <package> nodes
+	//nameNode := xmlquery.FindOne(doc, fmt.Sprintf("/metadata/package[name='%s']", *name))
+	nameNode := xmlquery.FindOne(doc, fmt.Sprintf("//package[name='%s']", *name))
+
+	//DECODING TECHNIQUE #1
+	var item sxml.UnitPrimary
+	data = []byte(nameNode.OutputXML(true))
+	_ = xml.Unmarshal(data, &item)
+	*rslt_primary = &item
+
+	//for _, pkg := range packages {
+	//	nameNode := xmlquery.FindOne(pkg, "name")
+	//	if nameNode != nil && nameNode.InnerText() == targetName {
+	//		fmt.Printf("Found package: %s\n", nameNode.InnerText())
+	//
+	//		// Extract other details if needed
+	//		archNode := xmlquery.FindOne(pkg, "arch")
+	//		if archNode != nil {
+	//			fmt.Printf("Architecture: %s\n", archNode.InnerText())
+	//		}
+	//
+	//		data = []byte(nameNode.OutputXML(true))
+	//		_ = xml.Unmarshal(data, rslt_primary)
+	//
+	//		// If you only need the first match, exit the loop
+	//		return
+	//	}
+	//}
+
 }
