@@ -1,7 +1,10 @@
 package main
 
-import "metasource/metasource/reader"
-import "metasource/metasource/config"
+import (
+	"metasource/metasource/config"
+	"metasource/metasource/driver"
+	"metasource/metasource/reader"
+)
 
 func main() {
 	//var name string
@@ -49,4 +52,6 @@ func main() {
 	//}
 
 	_, _ = reader.MakeDatabase()
+
+	_, _ = driver.PopulateRepositories()
 }
