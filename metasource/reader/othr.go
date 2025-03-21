@@ -14,7 +14,7 @@ import (
 	"unsafe"
 )
 
-func PopulateOthr(wait *sync.WaitGroup, dbpk <-chan *C.cr_Package, done chan<- bool) {
+func PopulateOthr(wait *sync.WaitGroup, dbpk <-chan *C.cr_Package, done chan<- bool, over chan<- bool) {
 	defer wait.Done()
 
 	var path string
@@ -34,7 +34,9 @@ func PopulateOthr(wait *sync.WaitGroup, dbpk <-chan *C.cr_Package, done chan<- b
 	if gexp != nil {
 		expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
-		return
+		over <- true
+	} else {
+		over <- false
 	}
 
 	for pack = range dbpk {
@@ -43,7 +45,8 @@ func PopulateOthr(wait *sync.WaitGroup, dbpk <-chan *C.cr_Package, done chan<- b
 			expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
 			slog.Log(nil, slog.LevelWarn, fmt.Sprintf("%s", expt.Error()))
 			done <- false
+		} else {
+			done <- true
 		}
-		done <- true
 	}
 }
