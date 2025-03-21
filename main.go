@@ -1,12 +1,7 @@
 package main
 
-import (
-	"fmt"
-	"log/slog"
-	"metasource/metasource/config"
-	"metasource/metasource/routes"
-	"net/http"
-)
+import "metasource/metasource/reader"
+import "metasource/metasource/config"
 
 func main() {
 	//var name string
@@ -35,20 +30,23 @@ func main() {
 	//	fmt.Println(rslt_filelist)
 	//}
 
-	var server *http.Server
-	var expt error
-
+	// ACTUAL CODE
+	//var server *http.Server
+	//var expt error
+	//
 	config.SetLogger()
+	//
+	//server = &http.Server{Addr: ":8080", Handler: http.DefaultServeMux}
+	//
+	//http.HandleFunc("/rawhide/changelog/", routes.RetrieveOther)
+	//http.HandleFunc("/rawhide/pkg/", routes.RetrievePrimary)
+	//http.HandleFunc("/rawhide/files/", routes.RetrieveFileList)
+	//http.HandleFunc("/rawhide/", routes.RetrievePlus)
+	//
+	//expt = server.ListenAndServe()
+	//if expt != nil {
+	//	slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
+	//}
 
-	server = &http.Server{Addr: ":8080", Handler: http.DefaultServeMux}
-
-	http.HandleFunc("/rawhide/changelog/", routes.RetrieveOther)
-	http.HandleFunc("/rawhide/pkg/", routes.RetrievePrimary)
-	http.HandleFunc("/rawhide/files/", routes.RetrieveFileList)
-	http.HandleFunc("/rawhide/", routes.RetrievePlus)
-
-	expt = server.ListenAndServe()
-	if expt != nil {
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
-	}
+	_, _ = reader.MakeDatabase()
 }
