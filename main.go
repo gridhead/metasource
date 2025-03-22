@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"metasource/metasource/config"
 	"metasource/metasource/driver"
 	"metasource/metasource/reader"
@@ -57,7 +56,6 @@ func main() {
 	list, _ := driver.PopulateRepositories()
 
 	for _, item := range list {
-		_, expt := driver.HandleRepositories(&item)
-		fmt.Println(expt)
+		_, _ = driver.HandleRepositories(&item)
 	}
 }

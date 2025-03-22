@@ -8,7 +8,7 @@ import (
 
 func SetLogger() {
 	logger := slog.New(tint.NewHandler(os.Stdout, &tint.Options{
-		Level: slog.LevelDebug,
+		Level: slog.LevelInfo,
 	}))
 	slog.SetDefault(logger)
 }
@@ -39,6 +39,10 @@ var REPODICT = map[string][]string{
 	"epel-next": {"%s", "%s-testing"},
 }
 
-var DBFOLDER string = "/var/tmp"
+var DBFOLDER string = "/var/tmp/metasource"
 
-var WAITTIME int64 = 60
+var WAITTIME int = 10
+
+var FILENAME string = "metasource-%s-%s"
+
+var ATTEMPTS int64 = 4
