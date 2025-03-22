@@ -35,9 +35,9 @@ func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname
 	defer C.free(unsafe.Pointer(fileconv))
 	defer C.free(unsafe.Pointer(othrconv))
 
-	prmypack, filepack, othrpack = make(chan *C.cr_Package, 10), make(chan *C.cr_Package, 10), make(chan *C.cr_Package, 10)
-	prmydone, filedone, othrdone = make(chan bool, 10), make(chan bool, 10), make(chan bool, 10)
-	prmyover, fileover, othrover = make(chan bool), make(chan bool), make(chan bool)
+	prmypack, filepack, othrpack = make(chan *C.cr_Package, 1), make(chan *C.cr_Package, 1), make(chan *C.cr_Package, 1)
+	prmydone, filedone, othrdone = make(chan bool, 1), make(chan bool, 1), make(chan bool, 1)
+	prmyover, fileover, othrover = make(chan bool, 1), make(chan bool, 1), make(chan bool, 1)
 
 	wait.Add(3)
 	go PopulatePrmy(&wait, prmyname, prmypack, prmydone, prmyover)
@@ -51,6 +51,8 @@ func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname
 	close(prmyover)
 	close(fileover)
 	close(othrover)
+
+	prmyover, fileover, othrover = nil, nil, nil
 
 	if prmyover_main || fileover_main || othrover_main {
 		expt = errors.New("Metadata databases already exist or opening failed")
@@ -89,11 +91,8 @@ func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname
 		}
 
 		C.cr_package_free(pack)
-
-		if gexp != nil {
-			C.g_error_free(gexp)
-		}
 	}
+
 	close(prmypack)
 	close(filepack)
 	close(othrpack)
@@ -101,7 +100,14 @@ func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname
 	close(filedone)
 	close(othrdone)
 
+	prmypack, filepack, othrpack = nil, nil, nil
+	prmydone, filedone, othrdone = nil, nil, nil
+
 	wait.Wait()
+
+	if gexp != nil {
+		C.g_error_free(gexp)
+	}
 
 	//defer C.free(unsafe.Pointer(pack))
 	//defer C.free(unsafe.Pointer(gexp))
