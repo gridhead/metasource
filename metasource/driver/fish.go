@@ -88,6 +88,9 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 		}
 	}
 
+	unit.Name = name
+	unit.Path = path
+
 	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction complete for %s", *vers, name))
 	*cast++
 	return

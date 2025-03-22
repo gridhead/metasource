@@ -9,6 +9,7 @@ import (
 	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"metasource/metasource/models/sxml"
+	"metasource/metasource/reader"
 	"net/http"
 	"strings"
 	"sync"
@@ -17,6 +18,8 @@ import (
 
 func HandleRepositories(unit *home.LinkUnit) (bool, error) {
 	var mdlink, name, path, head string
+	var prmyinpt, fileinpt, othrinpt string
+	var prmyname, filename, othrname string
 	var expt error
 	var oper *http.Client
 	var rqst *http.Request
@@ -29,6 +32,7 @@ func HandleRepositories(unit *home.LinkUnit) (bool, error) {
 	var castupDownload, entireDownload int
 	var castupWithdraw, entireWithdraw int
 	var wait sync.WaitGroup
+	var pack int64
 
 	entireDownload = 3
 	entireWithdraw = 3
@@ -98,9 +102,9 @@ func HandleRepositories(unit *home.LinkUnit) (bool, error) {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Metadata download failed", unit.Name))
 	}
 
-	for _, item := range list {
+	for indx := range list {
 		wait.Add(1)
-		go WithdrawArchives(&item, &unit.Name, &wait, &castupWithdraw)
+		go WithdrawArchives(&list[indx], &unit.Name, &wait, &castupWithdraw)
 	}
 	wait.Wait()
 
@@ -108,6 +112,28 @@ func HandleRepositories(unit *home.LinkUnit) (bool, error) {
 		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Metadata extraction complete", unit.Name))
 	} else {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Metadata extraction failed", unit.Name))
+	}
+
+	for _, item := range list {
+		if strings.Contains(item.Name, "primary") {
+			prmyname = strings.Replace(item.Name, ".xml", ".sqlite", -1)
+			prmyinpt = item.Path
+		}
+		if strings.Contains(item.Name, "filelists") {
+			filename = strings.Replace(item.Name, ".xml", ".sqlite", -1)
+			fileinpt = item.Path
+		}
+		if strings.Contains(item.Name, "other") {
+			othrname = strings.Replace(item.Name, ".xml", ".sqlite", -1)
+			othrinpt = item.Path
+		}
+	}
+
+	pack, expt = reader.MakeDatabase(&prmyinpt, &fileinpt, &othrinpt, &prmyname, &filename, &othrname)
+	if expt != nil {
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Database generation failed due to %s", unit.Name, expt.Error()))
+	} else {
+		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Database generation complete with %d package(s)", unit.Name, pack))
 	}
 
 	return true, nil

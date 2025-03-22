@@ -3,7 +3,6 @@ package main
 import (
 	"metasource/metasource/config"
 	"metasource/metasource/driver"
-	"metasource/metasource/reader"
 )
 
 func main() {
@@ -50,8 +49,6 @@ func main() {
 	//if expt != nil {
 	//	slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
 	//}
-
-	_, _ = reader.MakeDatabase()
 
 	list, _ := driver.PopulateRepositories()
 
