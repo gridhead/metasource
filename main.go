@@ -1,7 +1,9 @@
 package main
 
-import "metasource/metasource/reader"
-import "metasource/metasource/config"
+import (
+	"metasource/metasource/config"
+	"metasource/metasource/driver"
+)
 
 func main() {
 	//var name string
@@ -48,5 +50,9 @@ func main() {
 	//	slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
 	//}
 
-	_, _ = reader.MakeDatabase()
+	list, _ := driver.PopulateRepositories()
+
+	for _, item := range list {
+		_, _ = driver.HandleRepositories(&item)
+	}
 }

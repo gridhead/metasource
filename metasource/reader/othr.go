@@ -10,11 +10,12 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"metasource/metasource/config"
 	"sync"
 	"unsafe"
 )
 
-func PopulateOthr(wait *sync.WaitGroup, dbpk <-chan *C.cr_Package, done chan<- bool, over chan<- bool) {
+func PopulateOthr(wait *sync.WaitGroup, name *string, dbpk <-chan *C.cr_Package, done chan<- bool, over chan<- bool) {
 	defer wait.Done()
 
 	var path string
@@ -25,7 +26,7 @@ func PopulateOthr(wait *sync.WaitGroup, dbpk <-chan *C.cr_Package, done chan<- b
 	var gexp *C.GError
 	var expt error
 
-	path = "akashdeeep-other.sqlite"
+	path = fmt.Sprintf("%s/%s", config.DBFOLDER, *name)
 	conv = C.CString(path)
 	defer C.free(unsafe.Pointer(conv))
 
@@ -48,5 +49,9 @@ func PopulateOthr(wait *sync.WaitGroup, dbpk <-chan *C.cr_Package, done chan<- b
 		} else {
 			done <- true
 		}
+	}
+
+	if gexp != nil {
+		C.g_error_free(gexp)
 	}
 }
