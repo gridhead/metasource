@@ -11,6 +11,7 @@ import (
 	"metasource/metasource/models/sxml"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,8 +27,11 @@ func HandleRepositories(unit *home.LinkUnit) (bool, error) {
 	var list []home.FileUnit
 	var loca home.FileUnit
 	var castupDownload, entireDownload int
+	var castupWithdraw, entireWithdraw int
+	var wait sync.WaitGroup
 
 	entireDownload = 3
+	entireWithdraw = 3
 	mdlink = fmt.Sprintf("%s/repomd.xml", unit.Link)
 
 	rqst, expt = http.NewRequest("GET", mdlink, nil)
@@ -73,7 +77,7 @@ func HandleRepositories(unit *home.LinkUnit) (bool, error) {
 		list = append(list, loca)
 	}
 
-	for _, item := range list {
+	for indx, item := range list {
 		head = strings.Split(item.Name, ".")[0]
 		name = strings.Replace(item.Name, head, fmt.Sprintf(config.FILENAME, unit.Name, item.Type), -1)
 		path, expt = DownloadRepositories(&item, &name, 0)
@@ -84,14 +88,26 @@ func HandleRepositories(unit *home.LinkUnit) (bool, error) {
 			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Download complete for %s", unit.Name, name))
 			castupDownload += 1
 		}
-		item.Path = path
-		item.Name = name
+		list[indx].Path = path
+		list[indx].Name = name
 	}
 
 	if castupDownload == entireDownload {
 		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Metadata download complete", unit.Name))
 	} else {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Metadata download failed", unit.Name))
+	}
+
+	for _, item := range list {
+		wait.Add(1)
+		go WithdrawArchives(&item, &unit.Name, &wait, &castupWithdraw)
+	}
+	wait.Wait()
+
+	if castupWithdraw == entireWithdraw {
+		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Metadata extraction complete", unit.Name))
+	} else {
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Metadata extraction failed", unit.Name))
 	}
 
 	return true, nil
