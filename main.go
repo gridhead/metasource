@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"log/slog"
 	"metasource/metasource/config"
 	"metasource/metasource/driver"
 )
@@ -50,9 +52,8 @@ func main() {
 	//	slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
 	//}
 
-	list, _ := driver.PopulateRepositories()
-
-	for _, item := range list {
-		_, _ = driver.HandleRepositories(&item)
+	expt := driver.Database("/var/tmp/xyz")
+	if expt != nil {
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
 	}
 }

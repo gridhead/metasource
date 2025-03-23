@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-func HandleRepositories(unit *home.LinkUnit) (bool, error) {
+func HandleRepositories(unit *home.LinkUnit) error {
 	var mdlink, name, path, head string
 	var prmyinpt, fileinpt, othrinpt string
 	var prmyname, filename, othrname string
@@ -40,29 +40,29 @@ func HandleRepositories(unit *home.LinkUnit) (bool, error) {
 
 	rqst, expt = http.NewRequest("GET", mdlink, nil)
 	if expt != nil {
-		return false, expt
+		return expt
 	}
 
 	oper = &http.Client{Timeout: time.Second * 60}
 	resp, expt = oper.Do(rqst)
 	if expt != nil || resp.StatusCode != 200 {
 		if expt != nil {
-			return false, expt
+			return expt
 		}
 		if resp.StatusCode != 200 {
-			return false, errors.New(fmt.Sprintf("%s", resp.Status))
+			return errors.New(fmt.Sprintf("%s", resp.Status))
 		}
 	}
 	defer resp.Body.Close()
 
 	body, expt = io.ReadAll(resp.Body)
 	if expt != nil {
-		return false, expt
+		return expt
 	}
 
 	expt = xml.Unmarshal(body, &repo)
 	if expt != nil {
-		return false, expt
+		return expt
 	}
 
 	for _, item := range repo.Data {
@@ -136,5 +136,5 @@ func HandleRepositories(unit *home.LinkUnit) (bool, error) {
 		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Database generation complete with %d package(s)", unit.Name, pack))
 	}
 
-	return true, nil
+	return nil
 }
