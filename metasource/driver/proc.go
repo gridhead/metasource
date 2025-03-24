@@ -31,11 +31,13 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	var loca home.FileUnit
 	var castupDownload, entireDownload int
 	var castupWithdraw, entireWithdraw int
+	var castupChecksum, entireChecksum int
 	var wait sync.WaitGroup
 	var pack int64
 
 	entireDownload = 3
 	entireWithdraw = 3
+	entireChecksum = 3
 	mdlink = fmt.Sprintf("%s/repomd.xml", unit.Link)
 
 	rqst, expt = http.NewRequest("GET", mdlink, nil)
@@ -112,6 +114,18 @@ func HandleRepositories(unit *home.LinkUnit) error {
 		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Metadata extraction complete", unit.Name))
 	} else {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Metadata extraction failed", unit.Name))
+	}
+
+	for indx := range list {
+		wait.Add(1)
+		go VerifyChecksum(&list[indx], &unit.Name, &wait, &castupChecksum)
+	}
+	wait.Wait()
+
+	if castupChecksum == entireChecksum {
+		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Checksum verification complete", unit.Name))
+	} else {
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Checksum verification failed", unit.Name))
 	}
 
 	for _, item := range list {

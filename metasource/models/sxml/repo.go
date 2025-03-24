@@ -11,19 +11,29 @@ type RepoMD struct {
 }
 
 type UnitData struct {
-	XMLName      xml.Name   `xml:"data"`
-	Type         string     `xml:"type,attr"`
-	ChecksumComp ChecksumMD `xml:"checksum"`
-	ChecksumOpen ChecksumMD `xml:"open-checksum"`
-	Location     LocationMD `xml:"location"`
-	TimeStamp    uint64     `xml:"timestamp"`
-	SizeComp     uint64     `xml:"size"`
-	SizeOpen     uint64     `xml:"open-size"`
+	XMLName      xml.Name     `xml:"data"`
+	Type         string       `xml:"type,attr"`
+	ChecksumComp ChecksumComp `xml:"checksum"`
+	ChecksumOpen ChecksumOpen `xml:"open-checksum"`
+	Location     LocationMD   `xml:"location"`
+	TimeStamp    uint64       `xml:"timestamp"`
+	SizeComp     uint64       `xml:"size"`
+	SizeOpen     uint64       `xml:"open-size"`
 }
 
-type ChecksumMD struct {
+type ChecksumMDBase struct {
 	Type string `xml:"type,attr"`
 	Data string `xml:",chardata"`
+}
+
+type ChecksumComp struct {
+	XMLName xml.Name `xml:"checksum"`
+	ChecksumMDBase
+}
+
+type ChecksumOpen struct {
+	XMLName xml.Name `xml:"open-checksum"`
+	ChecksumMDBase
 }
 
 type LocationMD struct {
