@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"metasource/metasource/models/sxml"
 	"metasource/metasource/reader"
@@ -17,7 +16,7 @@ import (
 )
 
 func HandleRepositories(unit *home.LinkUnit) error {
-	var mdlink, name, path, head string
+	var mdlink, name, path string
 	var prmyinpt, fileinpt, othrinpt string
 	var prmyname, filename, othrname string
 	var expt error
@@ -28,7 +27,7 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	var hash home.Checksum
 	var body []byte
 	var list []home.FileUnit
-	var loca home.FileUnit
+	var file home.FileUnit
 	var castupDownload, entireDownload int
 	var castupWithdraw, entireWithdraw int
 	var castupChecksum, entireChecksum int
@@ -79,23 +78,22 @@ func HandleRepositories(unit *home.LinkUnit) error {
 		name = strings.Replace(item.Location.Href, "repodata/", "", -1)
 		path = fmt.Sprintf("%s/%s", unit.Link, name)
 		hash = home.Checksum{Data: item.ChecksumOpen.Data, Type: item.ChecksumOpen.Type}
-		loca = home.FileUnit{Name: name, Path: path, Type: item.Type, Hash: hash}
-		list = append(list, loca)
+		file = home.FileUnit{Name: name, Path: path, Type: item.Type, Hash: hash, Keep: true}
+		list = append(list, file)
 	}
 
-	for indx, item := range list {
-		head = strings.Split(item.Name, ".")[0]
-		name = strings.Replace(item.Name, head, fmt.Sprintf(config.FILENAME, unit.Name, item.Type), -1)
-		path, expt = DownloadRepositories(&item, &name, 0)
-		if expt != nil {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Download failed for %s due to %s", unit.Name, name, expt))
-			castupDownload -= 1
-		} else {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Download complete for %s", unit.Name, name))
-			castupDownload += 1
+	for indx := range list {
+		if !list[indx].Keep {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
+			continue
 		}
-		list[indx].Path = path
-		list[indx].Name = name
+
+		expt = DownloadRepositories(&list[indx], &unit.Name, 0, &castupDownload)
+		if expt != nil {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Download failed for %s due to %s", unit.Name, list[indx].Name, expt))
+		} else {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Download complete for %s", unit.Name, list[indx].Name))
+		}
 	}
 
 	if castupDownload == entireDownload {
@@ -105,6 +103,11 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	}
 
 	for indx := range list {
+		if !list[indx].Keep {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
+			continue
+		}
+
 		wait.Add(1)
 		go WithdrawArchives(&list[indx], &unit.Name, &wait, &castupWithdraw)
 	}
@@ -117,6 +120,11 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	}
 
 	for indx := range list {
+		if !list[indx].Keep {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
+			continue
+		}
+
 		wait.Add(1)
 		go VerifyChecksum(&list[indx], &unit.Name, &wait, &castupChecksum)
 	}
@@ -129,6 +137,11 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	}
 
 	for _, item := range list {
+		if !item.Keep {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, item.Name))
+			continue
+		}
+
 		if strings.Contains(item.Name, "primary") {
 			prmyname = strings.Replace(item.Name, ".xml", ".sqlite", -1)
 			prmyinpt = item.Path

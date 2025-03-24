@@ -10,6 +10,7 @@ type FileUnit struct {
 	Path string
 	Type string
 	Hash Checksum
+	Keep bool
 }
 
 type Checksum struct {
