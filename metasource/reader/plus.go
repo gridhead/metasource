@@ -15,7 +15,7 @@ import (
 	"unsafe"
 )
 
-func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname *string, filename *string, othrname *string) (int64, error) {
+func MakeDatabase(vers *string, prmypath *string, filepath *string, othrpath *string, prmyname *string, filename *string, othrname *string) (int64, error) {
 	var gexp *C.GError
 	var expt error
 	var iter *C.cr_PkgIterator
@@ -27,6 +27,7 @@ func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname
 	var prmyover_main, fileover_main, othrover_main bool
 	var pack *C.cr_Package
 	var numb int64
+	var head string
 
 	prmyconv = C.CString(*prmypath)
 	fileconv = C.CString(*filepath)
@@ -40,9 +41,9 @@ func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname
 	prmyover, fileover, othrover = make(chan bool, 1), make(chan bool, 1), make(chan bool, 1)
 
 	wait.Add(3)
-	go PopulatePrmy(&wait, prmyname, prmypack, prmydone, prmyover)
-	go PopulateFile(&wait, filename, filepack, filedone, fileover)
-	go PopulateOthr(&wait, othrname, othrpack, othrdone, othrover)
+	go PopulatePrmy(vers, &wait, prmyname, prmypack, prmydone, prmyover)
+	go PopulateFile(vers, &wait, filename, filepack, filedone, fileover)
+	go PopulateOthr(vers, &wait, othrname, othrpack, othrdone, othrover)
 
 	prmyover_main, _ = <-prmyover
 	fileover_main, _ = <-fileover
@@ -55,15 +56,15 @@ func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname
 	prmyover, fileover, othrover = nil, nil, nil
 
 	if prmyover_main || fileover_main || othrover_main {
-		expt = errors.New("Metadata databases already exist or opening failed")
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
-		return numb, nil
+		expt = errors.New("metadata databases already exist or opening failed")
+		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
+		return numb, expt
 	}
 
 	iter = C.cr_PkgIterator_new(prmyconv, fileconv, othrconv, nil, nil, nil, nil, &gexp)
 	if iter == nil {
 		expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		return numb, expt
 	}
 	defer C.cr_PkgIterator_free(iter, &gexp)
@@ -86,8 +87,8 @@ func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname
 
 		if prmydone_main && filedone_main && othrdone_main {
 			numb += 1
-			head := fmt.Sprintf("%s %s:%s-%s.%s", C.GoString(pack.name), C.GoString(pack.epoch), C.GoString(pack.version), C.GoString(pack.release), C.GoString(pack.arch))
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("%s added.", head))
+			head = fmt.Sprintf("%s %s:%s-%s.%s", C.GoString(pack.name), C.GoString(pack.epoch), C.GoString(pack.version), C.GoString(pack.release), C.GoString(pack.arch))
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] %s added.", *vers, head))
 		}
 
 		C.cr_package_free(pack)
@@ -109,7 +110,6 @@ func MakeDatabase(prmypath *string, filepath *string, othrpath *string, prmyname
 		C.g_error_free(gexp)
 	}
 
-	//defer C.free(unsafe.Pointer(pack))
-	//defer C.free(unsafe.Pointer(gexp))
+	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete with %d package(s)", *vers, numb))
 	return numb, nil
 }
