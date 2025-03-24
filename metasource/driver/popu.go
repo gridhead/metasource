@@ -38,11 +38,11 @@ func PopulateRepositories() ([]home.LinkUnit, error) {
 		urlx = fmt.Sprintf("%s/pub/fedora/linux/development/%s/Everything/x86_64/os/repodata/", config.DLSERVER, vers)
 		unit = home.LinkUnit{Name: item, Link: urlx}
 		dict = append(dict, unit)
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("Acquired repository location for %s/%s branch at %s", item, vers, urlx))
+		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Acquired repository location for %s/%s branch at %s", item, item, vers, urlx))
 		urlx = strings.Replace(urlx, "/x86_64/os/", "/source/tree/", -1)
 		unit = home.LinkUnit{Name: fmt.Sprintf("src_%s", item), Link: urlx}
 		dict = append(dict, unit)
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("Acquired repository location for src_%s/%s branch at %s", item, vers, urlx))
+		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Acquired repository location for src_%s/%s branch at %s", item, item, vers, urlx))
 	}
 
 	list, expt = ListBranches("current")
@@ -79,18 +79,18 @@ func PopulateRepositories() ([]home.LinkUnit, error) {
 			urlx = fmt.Sprintf(urli, config.DLSERVER, vers)
 			unit = home.LinkUnit{Name: name, Link: urlx}
 			dict = append(dict, unit)
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("Acquired repository location for %s/%s branch at %s", name, vers, urlx))
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Acquired repository location for %s/%s branch at %s", name, name, vers, urlx))
 			urlx = strings.Replace(urlx, "/x86_64/os/", "/source/tree/", -1)
 			unit = home.LinkUnit{Name: fmt.Sprintf("src_%s", name), Link: urlx}
 			dict = append(dict, unit)
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("Acquired repository location for src_%s/%s branch at %s", name, vers, urlx))
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Acquired repository location for src_%s/%s branch at %s", name, name, vers, urlx))
 		}
 
 	}
 
 	unit = home.LinkUnit{Name: "koji", Link: fmt.Sprintf("%s/rawhide/latest/x86_64/repodata/", config.KOJIREPO)}
 	dict = append(dict, unit)
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("Acquired repository location for %s/%s branch at %s", unit.Name, "rawhide", unit.Link))
+	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Acquired repository location for %s/%s branch at %s", unit.Name, unit.Name, "rawhide", unit.Link))
 
 	slog.Log(nil, slog.LevelInfo, fmt.Sprintf("%d repository location(s) acquired", len(dict)))
 	return dict, nil
