@@ -9,29 +9,34 @@ import (
 	"metasource/metasource/models/home"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
-func DownloadRepositories(unit *home.FileUnit, name *string, stab int64) (string, error) {
+func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *int) error {
 	if stab >= config.ATTEMPTS {
-		return "", errors.New("most attempts failed")
+		unit.Keep = false
+		return errors.New("most attempts failed")
 	}
 
 	var expt error
 	var urlx, loca string
+	var head, name string
 	var file *os.File
 	var oper *http.Client
 	var rqst *http.Request
 	var resp *http.Response
 
+	head = strings.Split(unit.Name, ".")[0]
+	name = strings.Replace(unit.Name, head, fmt.Sprintf(config.FILENAME, *vers, unit.Type), -1)
 	urlx = fmt.Sprintf("%s", unit.Path)
-	loca = fmt.Sprintf("%s/comp/%s", config.DBFOLDER, *name)
+	loca = fmt.Sprintf("%s/comp/%s", config.DBFOLDER, name)
 
 	file, expt = os.Create(loca)
 	if expt != nil {
 		stab += 1
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("Stab failed due to %s", expt.Error()))
-		return DownloadRepositories(unit, name, stab)
+		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
+		return DownloadRepositories(unit, vers, stab, cast)
 	}
 	defer file.Close()
 
@@ -39,24 +44,29 @@ func DownloadRepositories(unit *home.FileUnit, name *string, stab int64) (string
 	rqst, expt = http.NewRequest("GET", urlx, nil)
 	if expt != nil {
 		stab += 1
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("Stab failed due to %s", expt.Error()))
-		return DownloadRepositories(unit, name, stab)
+		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
+		return DownloadRepositories(unit, vers, stab, cast)
 	}
 
 	resp, expt = oper.Do(rqst)
 	if expt != nil {
 		stab += 1
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("Stab failed due to %s", expt.Error()))
-		return DownloadRepositories(unit, name, stab)
+		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
+		return DownloadRepositories(unit, vers, stab, cast)
 	}
 	defer resp.Body.Close()
 
 	_, expt = io.Copy(file, resp.Body)
 	if expt != nil {
 		stab += 1
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("Stab failed due to %s", expt.Error()))
-		return DownloadRepositories(unit, name, stab)
+		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
+		return DownloadRepositories(unit, vers, stab, cast)
 	}
 
-	return loca, nil
+	unit.Keep = true
+	unit.Name = name
+	unit.Path = loca
+	*cast++
+	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab complete for %s", *vers, unit.Name))
+	return nil
 }
