@@ -15,7 +15,7 @@ import (
 	"unsafe"
 )
 
-func PopulateOthr(wait *sync.WaitGroup, name *string, dbpk <-chan *C.cr_Package, done chan<- bool, over chan<- bool) {
+func PopulateOthr(vers *string, wait *sync.WaitGroup, name *string, dbpk <-chan *C.cr_Package, done chan<- bool, over chan<- bool) {
 	defer wait.Done()
 
 	var path string
@@ -34,7 +34,7 @@ func PopulateOthr(wait *sync.WaitGroup, name *string, dbpk <-chan *C.cr_Package,
 	defer C.cr_db_close(base, &gexp)
 	if gexp != nil {
 		expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		over <- true
 	} else {
 		over <- false
@@ -44,7 +44,7 @@ func PopulateOthr(wait *sync.WaitGroup, name *string, dbpk <-chan *C.cr_Package,
 		rslt = int(C.cr_db_add_pkg(base, pack, &gexp))
 		if rslt != 0 {
 			expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
-			slog.Log(nil, slog.LevelWarn, fmt.Sprintf("%s", expt.Error()))
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 			done <- false
 		} else {
 			done <- true
@@ -54,4 +54,6 @@ func PopulateOthr(wait *sync.WaitGroup, name *string, dbpk <-chan *C.cr_Package,
 	if gexp != nil {
 		C.g_error_free(gexp)
 	}
+
+	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete for %s", *vers, *name))
 }

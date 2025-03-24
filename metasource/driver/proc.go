@@ -156,7 +156,7 @@ func HandleRepositories(unit *home.LinkUnit) error {
 		}
 	}
 
-	pack, expt = reader.MakeDatabase(&prmyinpt, &fileinpt, &othrinpt, &prmyname, &filename, &othrname)
+	pack, expt = reader.MakeDatabase(&unit.Name, &prmyinpt, &fileinpt, &othrinpt, &prmyname, &filename, &othrname)
 	if expt != nil {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Database generation failed due to %s", unit.Name, expt.Error()))
 	} else {
