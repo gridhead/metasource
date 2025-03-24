@@ -6,9 +6,22 @@ import (
 	"os"
 )
 
-func SetLogger() {
+func SetLogger(lglvtext *string) {
+	var lglvoptn slog.Level
+
+	switch *lglvtext {
+	case "info":
+		lglvoptn = slog.LevelInfo
+	case "warn":
+		lglvoptn = slog.LevelWarn
+	case "debug":
+		lglvoptn = slog.LevelDebug
+	default:
+		lglvoptn = slog.LevelInfo
+	}
+
 	logger := slog.New(tint.NewHandler(os.Stdout, &tint.Options{
-		Level: slog.LevelInfo,
+		Level: lglvoptn,
 	}))
 	slog.SetDefault(logger)
 }

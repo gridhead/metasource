@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log/slog"
 	"metasource/metasource/config"
@@ -38,7 +39,6 @@ func main() {
 	//var server *http.Server
 	//var expt error
 	//
-	config.SetLogger()
 	//
 	//server = &http.Server{Addr: ":8080", Handler: http.DefaultServeMux}
 	//
@@ -52,6 +52,11 @@ func main() {
 	//	slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
 	//}
 
+	var lglv *string
+	lglv = flag.String("loglevel", "info", "Set the loglevel for the application")
+	flag.Parse()
+
+	config.SetLogger(lglv)
 	expt := driver.Database("/var/tmp/xyz")
 	if expt != nil {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
