@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"metasource/metasource/config"
 	"metasource/metasource/driver"
+	"os"
 )
 
 func main() {
@@ -52,13 +53,48 @@ func main() {
 	//	slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
 	//}
 
-	var lglv *string
-	lglv = flag.String("loglevel", "info", "Set the loglevel for the application")
+	var expt error
+	var lglvtext, location *string
+	var database, dispense *flag.FlagSet
+
+	lglvtext = flag.String("loglevel", "info", "Set the application loglevel")
+	location = flag.String("location", config.DBFOLDER, "Set the database location")
 	flag.Parse()
 
-	config.SetLogger(lglv)
-	expt := driver.Database("/var/tmp/xyz")
-	if expt != nil {
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+	database = flag.NewFlagSet("database", flag.ExitOnError)
+	dispense = flag.NewFlagSet("dispense", flag.ExitOnError)
+	config.SetLogger(lglvtext)
+
+	if flag.NArg() < 1 {
+		slog.Log(nil, slog.LevelError, "Invalid subcommand")
+		slog.Log(nil, slog.LevelInfo, "Expected either 'database' or 'dispense' subcommand")
+		os.Exit(1)
+	}
+
+	switch flag.Arg(0) {
+	case "database":
+		expt = database.Parse(os.Args[2:])
+		if expt != nil {
+			slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+			os.Exit(1)
+		}
+		expt = driver.Database(*location)
+		if expt != nil {
+			slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+			os.Exit(1)
+		}
+		os.Exit(0)
+	case "dispense":
+		expt = dispense.Parse(os.Args[2:])
+		if expt != nil {
+			slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+			os.Exit(1)
+		}
+		slog.Log(nil, slog.LevelError, "Dispense is not implemented yet")
+		os.Exit(1)
+	default:
+		slog.Log(nil, slog.LevelError, "Invalid subcommand")
+		slog.Log(nil, slog.LevelInfo, "Expected either 'database' or 'dispense' subcommand")
+		os.Exit(1)
 	}
 }
