@@ -15,7 +15,7 @@ import (
 	"unsafe"
 )
 
-func MakeDatabase(vers *string, prmypath *string, filepath *string, othrpath *string, prmyname *string, filename *string, othrname *string) (int64, error) {
+func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, othrinpt *string, prmyname *string, filename *string, othrname *string, prmypath *string, filepath *string, othrpath *string) (int64, error) {
 	var gexp *C.GError
 	var expt error
 	var iter *C.cr_PkgIterator
@@ -29,9 +29,9 @@ func MakeDatabase(vers *string, prmypath *string, filepath *string, othrpath *st
 	var numb int64
 	var head string
 
-	prmyconv = C.CString(*prmypath)
-	fileconv = C.CString(*filepath)
-	othrconv = C.CString(*othrpath)
+	prmyconv = C.CString(*prmyinpt)
+	fileconv = C.CString(*fileinpt)
+	othrconv = C.CString(*othrinpt)
 	defer C.free(unsafe.Pointer(prmyconv))
 	defer C.free(unsafe.Pointer(fileconv))
 	defer C.free(unsafe.Pointer(othrconv))
@@ -41,9 +41,9 @@ func MakeDatabase(vers *string, prmypath *string, filepath *string, othrpath *st
 	prmyover, fileover, othrover = make(chan bool, 1), make(chan bool, 1), make(chan bool, 1)
 
 	wait.Add(3)
-	go PopulatePrmy(vers, &wait, prmyname, prmypack, prmydone, prmyover)
-	go PopulateFile(vers, &wait, filename, filepack, filedone, fileover)
-	go PopulateOthr(vers, &wait, othrname, othrpack, othrdone, othrover)
+	go PopulatePrmy(vers, &wait, cast, prmyname, prmypath, prmypack, prmydone, prmyover)
+	go PopulateFile(vers, &wait, cast, filename, filepath, filepack, filedone, fileover)
+	go PopulateOthr(vers, &wait, cast, othrname, othrpath, othrpack, othrdone, othrover)
 
 	prmyover_main, _ = <-prmyover
 	fileover_main, _ = <-fileover

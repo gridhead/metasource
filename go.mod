@@ -7,3 +7,5 @@ require (
 	github.com/lmittmann/tint v1.0.7
 	github.com/ulikunitz/xz v0.5.12
 )
+
+require github.com/mattn/go-sqlite3 v1.14.24

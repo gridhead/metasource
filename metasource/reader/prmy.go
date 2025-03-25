@@ -10,15 +10,13 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"metasource/metasource/config"
 	"sync"
 	"unsafe"
 )
 
-func PopulatePrmy(vers *string, wait *sync.WaitGroup, name *string, dbpk <-chan *C.cr_Package, done chan<- bool, over chan<- bool) {
+func PopulatePrmy(vers *string, wait *sync.WaitGroup, cast *int, name *string, path *string, dbpk <-chan *C.cr_Package, done chan<- bool, over chan<- bool) {
 	defer wait.Done()
 
-	var path string
 	var conv *C.char
 	var base *C.cr_SqliteDb
 	var pack *C.cr_Package
@@ -26,8 +24,7 @@ func PopulatePrmy(vers *string, wait *sync.WaitGroup, name *string, dbpk <-chan 
 	var gexp *C.GError
 	var expt error
 
-	path = fmt.Sprintf("%s/%s", config.DBFOLDER, *name)
-	conv = C.CString(path)
+	conv = C.CString(*path)
 	defer C.free(unsafe.Pointer(conv))
 
 	base = C.cr_db_open(conv, C.CR_DB_PRIMARY, &gexp)
@@ -36,6 +33,7 @@ func PopulatePrmy(vers *string, wait *sync.WaitGroup, name *string, dbpk <-chan 
 		expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
 		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		over <- true
+		return
 	} else {
 		over <- false
 	}
@@ -55,5 +53,7 @@ func PopulatePrmy(vers *string, wait *sync.WaitGroup, name *string, dbpk <-chan 
 		C.g_error_free(gexp)
 	}
 
+	*cast++
 	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete for %s", *vers, *name))
+	return
 }

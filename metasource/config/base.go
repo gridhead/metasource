@@ -59,3 +59,54 @@ var WAITTIME int = 10
 var FILENAME string = "metasource-%s-%s"
 
 var ATTEMPTS int64 = 4
+
+// SQLite3 queries for various purposes
+
+var SIGNAL_DATABASE string = "CREATE INDEX packageSource ON packages (rpm_sourcerpm)"
+
+var OBTAIN_RELATION_LIST string = "SELECT name FROM sqlite_master WHERE type='table'"
+
+var RELATION_QUERY string = "SELECT {table}.name, {table}.flags, {table}.epoch, {table}.version, {table}.release, packages.name FROM {table}, packages WHERE {table}.pkgKey == packages.pkgKey;"
+
+var FILEUNIT_QUERY string = "SELECT {table}.name, {table}.type, packages.name FROM {table}, packages WHERE {table}.pkgKey == packages.pkgKey;"
+
+var FILELIST_QUERY string = "SELECT packages.pkgId, {table}.dirname, {table}.filenames, {table}.filetypes FROM {table}, packages WHERE {table}.pkgKey == packages.pkgKey;"
+
+var PACKAGES_QUERY string = "SELECT {table}.name, {table}.version, {table}.release, {table}.epoch, {table}.arch FROM {table};"
+
+var STANDARD_QUERY string = "SELECT * from {table};"
+
+var CHANGELOG_QUERY string = "SELECT packages.pkgId, {table}.author, {table}.date, {table}.changelog FROM {table}, packages WHERE {table}.pkgKey == packages.pkgKey;"
+
+var PKGCACHE_BUILDER string = "SELECT {table}.pkgId, {table}.name FROM {table};"
+
+var QURYDICT = map[string]string{
+	"conflicts":   RELATION_QUERY,
+	"enhances":    RELATION_QUERY,
+	"obsoletes":   RELATION_QUERY,
+	"provides":    RELATION_QUERY,
+	"requires":    RELATION_QUERY,
+	"supplements": RELATION_QUERY,
+	"recommends":  RELATION_QUERY,
+	"suggests":    RELATION_QUERY,
+	"files":       FILEUNIT_QUERY,
+	"packages":    PACKAGES_QUERY,
+	"changelog":   CHANGELOG_QUERY,
+	"filelist":    FILELIST_QUERY,
+}
+
+// SQLite3 queries for various endpoints
+
+var OBTAIN_PACKAGE = "SELECT pkgKey, pkgId, name, rpm_sourcerpm, epoch, version, release, arch, summary, description, url FROM packages WHERE name = ? ORDER BY epoch DESC, version DESC, release DESC"
+
+var OBTAIN_PACKAGE_INFO = "SELECT rowid, pkgKey, name, epoch, version, release, flags FROM {} WHERE pkgKey = ?"
+
+var OBTAIN_CO_PACKAGE = "SELECT DISTINCT(name) FROM packages WHERE rpm_sourcerpm = ?"
+
+var OBTAIN_PACKAGE_BY_SOURCE = "SELECT pkgKey, pkgId, name, rpm_sourcerpm, epoch, version, release, arch, summary, description, url FROM packages WHERE rpm_sourcerpm LIKE ? ORDER BY epoch DESC, version DESC, release DESC"
+
+var OBTAIN_PACKAGE_BY = "SELECT p.pkgKey, p.pkgId, p.name, p.rpm_sourcerpm, p.epoch, p.version, p.release, p.arch, p.summary, p.description, p.url FROM packages p JOIN {} t ON t.pkgKey = p.pkgKey WHERE t.name = ? ORDER BY p.epoch DESC, p.version DESC, p.release DESC"
+
+var OBTAIN_FILEUNIT = "SELECT f.pkgKey, f.dirname, f.filenames, f.filetypes FROM filelist f JOIN packages p ON p.pkgId = ? WHERE f.pkgKey = p.pkgKey ORDER BY f.filenames"
+
+var OBTAIN_CHANGELOGS = "SELECT c.pkgKey, c.author, c.changelog, c.date FROM changelog c JOIN packages p ON p.pkgId = ? WHERE c.pkgKey = p.pkgKey ORDER BY c.date DESC"
