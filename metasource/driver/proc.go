@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"metasource/metasource/models/sxml"
 	"metasource/metasource/reader"
@@ -19,6 +20,7 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	var mdlink, name, path string
 	var prmyinpt, fileinpt, othrinpt string
 	var prmyname, filename, othrname string
+	var prmypath, filepath, othrpath string
 	var expt error
 	var oper *http.Client
 	var rqst *http.Request
@@ -31,12 +33,16 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	var castupDownload, entireDownload int
 	var castupWithdraw, entireWithdraw int
 	var castupChecksum, entireChecksum int
+	var castupGenerate, entireGenerate int
+	var castupSignalDB, entireSignalDB int
 	var wait sync.WaitGroup
 	var pack int64
 
 	entireDownload = 3
 	entireWithdraw = 3
 	entireChecksum = 3
+	entireGenerate = 3
+	entireSignalDB = 1
 	mdlink = fmt.Sprintf("%s/repomd.xml", unit.Link)
 
 	rqst, expt = http.NewRequest("GET", mdlink, nil)
@@ -136,31 +142,66 @@ func HandleRepositories(unit *home.LinkUnit) error {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Checksum verification failed", unit.Name))
 	}
 
-	for _, item := range list {
-		if !item.Keep {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, item.Name))
+	for indx := range list {
+		if !list[indx].Keep {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
 			continue
 		}
 
-		if strings.Contains(item.Name, "primary") {
-			prmyname = strings.Replace(item.Name, ".xml", ".sqlite", -1)
-			prmyinpt = item.Path
-		}
-		if strings.Contains(item.Name, "filelists") {
-			filename = strings.Replace(item.Name, ".xml", ".sqlite", -1)
-			fileinpt = item.Path
-		}
-		if strings.Contains(item.Name, "other") {
-			othrname = strings.Replace(item.Name, ".xml", ".sqlite", -1)
-			othrinpt = item.Path
+		switch list[indx].Type {
+		case "primary", "filelists", "other":
+			path = list[indx].Path
+			list[indx].Name = strings.Replace(list[indx].Name, ".xml", ".sqlite", -1)
+			list[indx].Path = fmt.Sprintf("%s/%s", config.DBFOLDER, list[indx].Name)
+			list[indx].Keep = true
+			switch list[indx].Type {
+			case "primary":
+				prmyinpt = path
+				prmyname = list[indx].Name
+				prmypath = list[indx].Path
+			case "filelists":
+				fileinpt = path
+				filename = list[indx].Name
+				filepath = list[indx].Path
+			case "other":
+				othrinpt = path
+				othrname = list[indx].Name
+				othrpath = list[indx].Path
+			}
+		default:
+			continue
 		}
 	}
 
-	pack, expt = reader.MakeDatabase(&unit.Name, &prmyinpt, &fileinpt, &othrinpt, &prmyname, &filename, &othrname)
-	if expt != nil {
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Database generation failed due to %s", unit.Name, expt.Error()))
-	} else {
+	pack, expt = reader.MakeDatabase(&unit.Name, &castupGenerate, &prmyinpt, &fileinpt, &othrinpt, &prmyname, &filename, &othrname, &prmypath, &filepath, &othrpath)
+	if expt == nil && castupGenerate == entireGenerate {
 		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Database generation complete with %d package(s)", unit.Name, pack))
+	} else {
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Database generation failed due to %s", unit.Name, expt.Error()))
+	}
+
+	for indx := range list {
+		if !list[indx].Keep {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
+			continue
+		}
+
+		if list[indx].Type != "primary" {
+			continue
+		}
+
+		expt = GenerateSignal(&list[indx], &castupSignalDB)
+		if expt != nil {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Indexing failed for %s due to %s", unit.Name, list[indx].Name, expt))
+		} else {
+			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Indexing complete for %s", unit.Name, list[indx].Name))
+		}
+	}
+
+	if castupSignalDB == entireSignalDB {
+		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Database indexing complete", unit.Name))
+	} else {
+		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Database indexing failed", unit.Name))
 	}
 
 	return nil
