@@ -3,7 +3,6 @@ package driver
 import (
 	"fmt"
 	"log/slog"
-	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"os"
 )
@@ -25,7 +24,6 @@ func InitPath(loca string) error {
 		if expt != nil {
 			return expt
 		}
-		config.DBFOLDER = loca
 	} else {
 		expt = os.RemoveAll(loca)
 		if expt != nil {
