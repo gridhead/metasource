@@ -3,154 +3,163 @@ package routes
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
+	"github.com/go-chi/chi/v5"
+	"metasource/metasource/lookup"
 	"metasource/metasource/models/dict"
-	"metasource/metasource/models/sxml"
-	"metasource/metasource/runner"
+	"metasource/metasource/models/home"
 	"net/http"
-	"strings"
-	"sync"
 )
 
 func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
-	var name string
-	var list []string
-	var rslt_primary *sxml.UnitPrimary
-	var wait sync.WaitGroup
+	var name, vers, repo string
 	var rslt dict.UnitPrimary
+	var pack home.PackUnit
+	var data home.ExtnUnit
+	var coop []string
 	var expt error
-	var utbs dict.UnitBase
 
-	list = strings.Split(r.URL.Path, "/")
+	name = chi.URLParam(r, "name")
+	vers = chi.URLParam(r, "vers")
 
-	if len(list) != 4 {
+	if name == "" || vers == "" {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Malformed request", r.Method, r.RequestURI, http.StatusBadRequest))
 		return
 	}
 
-	name = strings.TrimSpace(list[3])
-	if name == "" {
-		http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Absent package", r.Method, r.RequestURI, http.StatusNotFound))
+	pack, repo, expt = lookup.RetrievePrmy(&vers, &name)
+	if expt != nil {
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
 	}
 
-	wait.Add(1)
-	go runner.ImportPrimary(&wait, &rslt_primary, &name)
-	wait.Wait()
+	data, expt = lookup.RetrieveExtended(&vers, &pack, &repo)
+	if expt != nil {
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
+		return
+	}
 
-	if rslt_primary == nil {
-		http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Absent result", r.Method, r.RequestURI, http.StatusNotFound))
+	coop, expt = lookup.RetrieveCoop(&vers, &pack, &repo)
+	if expt != nil {
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
 	}
 
 	rslt = dict.UnitPrimary{
-		Repo:        "release",
-		Arch:        rslt_primary.Arch,
-		Epoch:       rslt_primary.Version.Epoch,
-		Version:     rslt_primary.Version.Ver,
-		Release:     rslt_primary.Version.Rel,
-		Summary:     rslt_primary.Summary,
-		Description: rslt_primary.Description,
-		Basename:    rslt_primary.Name,
-		URL:         rslt_primary.URL,
-		CoPackages:  []string{rslt_primary.Name},
+		Repo:        repo,
+		Arch:        pack.Arch.String,
+		Epoch:       pack.Epoch.String,
+		Version:     pack.Version.String,
+		Release:     pack.Release.String,
+		Summary:     pack.Summary.String,
+		Description: pack.Desc.String,
+		Basename:    pack.Name.String,
+		URL:         pack.Link.String,
+		CoPackages:  coop,
+	}
+	if rslt.Repo == "" {
+		rslt.Repo = "release"
 	}
 
 	rslt.Supplements = []dict.UnitBase{}
-	for _, item := range rslt_primary.Format.Supplements.Entries {
+	for _, item := range data.Supplements {
+		var utbs dict.UnitBase
 		utbs = dict.UnitBase{
-			Version: item.Ver,
-			Epoch:   item.Epoch,
-			Release: item.Rel,
-			Name:    item.Name,
-			Flags:   item.Flags,
+			Version: item.Version.String,
+			Epoch:   item.Epoch.String,
+			Release: item.Release.String,
+			Name:    item.Name.String,
+			Flags:   item.Flags.String,
 		}
 		rslt.Supplements = append(rslt.Supplements, utbs)
 	}
 
 	rslt.Recommends = []dict.UnitBase{}
-	for _, item := range rslt_primary.Format.Recommends.Entries {
+	for _, item := range data.Recommends {
+		var utbs dict.UnitBase
 		utbs = dict.UnitBase{
-			Version: item.Ver,
-			Epoch:   item.Epoch,
-			Release: item.Rel,
-			Name:    item.Name,
-			Flags:   item.Flags,
+			Version: item.Version.String,
+			Epoch:   item.Epoch.String,
+			Release: item.Release.String,
+			Name:    item.Name.String,
+			Flags:   item.Flags.String,
 		}
 		rslt.Recommends = append(rslt.Recommends, utbs)
 	}
 
 	rslt.Conflicts = []dict.UnitBase{}
-	for _, item := range rslt_primary.Format.Conflicts.Entries {
+	for _, item := range data.Conflicts {
+		var utbs dict.UnitBase
 		utbs = dict.UnitBase{
-			Version: item.Ver,
-			Epoch:   item.Epoch,
-			Release: item.Rel,
-			Name:    item.Name,
-			Flags:   item.Flags,
+			Version: item.Version.String,
+			Epoch:   item.Epoch.String,
+			Release: item.Release.String,
+			Name:    item.Name.String,
+			Flags:   item.Flags.String,
 		}
 		rslt.Conflicts = append(rslt.Conflicts, utbs)
 	}
 
 	rslt.Obsoletes = []dict.UnitBase{}
-	for _, item := range rslt_primary.Format.Obsoletes.Entries {
+	for _, item := range data.Obsoletes {
+		var utbs dict.UnitBase
 		utbs = dict.UnitBase{
-			Version: item.Ver,
-			Epoch:   item.Epoch,
-			Release: item.Rel,
-			Name:    item.Name,
-			Flags:   item.Flags,
+			Version: item.Version.String,
+			Epoch:   item.Epoch.String,
+			Release: item.Release.String,
+			Name:    item.Name.String,
+			Flags:   item.Flags.String,
 		}
 		rslt.Obsoletes = append(rslt.Obsoletes, utbs)
 	}
 
 	rslt.Provides = []dict.UnitBase{}
-	for _, item := range rslt_primary.Format.Provides.Entries {
+	for _, item := range data.Provides {
+		var utbs dict.UnitBase
 		utbs = dict.UnitBase{
-			Version: item.Ver,
-			Epoch:   item.Epoch,
-			Release: item.Rel,
-			Name:    item.Name,
-			Flags:   item.Flags,
+			Version: item.Version.String,
+			Epoch:   item.Epoch.String,
+			Release: item.Release.String,
+			Name:    item.Name.String,
+			Flags:   item.Flags.String,
 		}
 		rslt.Provides = append(rslt.Provides, utbs)
 	}
 
 	rslt.Requires = []dict.UnitBase{}
-	for _, item := range rslt_primary.Format.Requires.Entries {
+	for _, item := range data.Requires {
+		var utbs dict.UnitBase
 		utbs = dict.UnitBase{
-			Version: item.Ver,
-			Epoch:   item.Epoch,
-			Release: item.Rel,
-			Name:    item.Name,
-			Flags:   item.Flags,
+			Version: item.Version.String,
+			Epoch:   item.Epoch.String,
+			Release: item.Release.String,
+			Name:    item.Name.String,
+			Flags:   item.Flags.String,
 		}
 		rslt.Requires = append(rslt.Requires, utbs)
 	}
 
 	rslt.Enhances = []dict.UnitBase{}
-	for _, item := range rslt_primary.Format.Enhances.Entries {
+	for _, item := range data.Enhances {
+		var utbs dict.UnitBase
 		utbs = dict.UnitBase{
-			Version: item.Ver,
-			Epoch:   item.Epoch,
-			Release: item.Rel,
-			Name:    item.Name,
-			Flags:   item.Flags,
+			Version: item.Version.String,
+			Epoch:   item.Epoch.String,
+			Release: item.Release.String,
+			Name:    item.Name.String,
+			Flags:   item.Flags.String,
 		}
 		rslt.Enhances = append(rslt.Enhances, utbs)
 	}
 
 	rslt.Suggests = []dict.UnitBase{}
-	for _, item := range rslt_primary.Format.Suggests.Entries {
+	for _, item := range data.Suggests {
+		var utbs dict.UnitBase
 		utbs = dict.UnitBase{
-			Version: item.Ver,
-			Epoch:   item.Epoch,
-			Release: item.Rel,
-			Name:    item.Name,
-			Flags:   item.Flags,
+			Version: item.Version.String,
+			Epoch:   item.Epoch.String,
+			Release: item.Release.String,
+			Name:    item.Name.String,
+			Flags:   item.Flags.String,
 		}
 		rslt.Suggests = append(rslt.Suggests, utbs)
 	}
@@ -159,8 +168,6 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 	expt = json.NewEncoder(w).Encode(rslt)
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Marshalling failed", r.Method, r.RequestURI, http.StatusInternalServerError))
 		return
 	}
-	slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] <%s> %d - Result dispatched", r.Method, r.RequestURI, http.StatusOK))
 }
