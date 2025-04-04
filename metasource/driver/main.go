@@ -72,7 +72,7 @@ func Database(loca string) error {
 	for _, item = range list {
 		expt = HandleRepositories(&item)
 		if expt != nil {
-			return expt
+			slog.Log(nil, slog.LevelWarn, fmt.Sprintf("[%s] Repository handling failed due to %s", item.Name, expt.Error()))
 		}
 	}
 
