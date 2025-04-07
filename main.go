@@ -61,6 +61,7 @@ func main() {
 		router.Use(middleware.Logger)
 		router.Use(middleware.Recoverer)
 
+		router.Get("/branches", routes.RetrieveBranches)
 		router.Get("/{vers}/changelog/{name}", routes.RetrieveOther)
 		router.Get("/{vers}/pkg/{name}", routes.RetrievePrimary)
 		router.Get("/{vers}/files/{name}", routes.RetrieveFileList)
