@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
+func RetrieveSrce(w http.ResponseWriter, r *http.Request) {
 	var name, vers, repo string
 	var rslt dict.UnitPrimary
 	var pack home.PackUnit
@@ -26,7 +26,7 @@ func RetrievePrimary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pack, repo, expt = lookup.RetrievePrmy(&vers, &name)
+	pack, repo, expt = lookup.RetrieveSrce(&vers, &name)
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return

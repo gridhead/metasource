@@ -97,16 +97,16 @@ var QURYDICT = map[string]string{
 
 // SQLite3 queries for various endpoints
 
-var OBTAIN_PACKAGE = "SELECT pkgKey, pkgId, name, rpm_sourcerpm, epoch, version, release, arch, summary, description, url FROM packages WHERE name = ? ORDER BY epoch DESC, version DESC, release DESC"
+var OBTAIN_PACKAGE string = "SELECT pkgKey, pkgId, name, rpm_sourcerpm, epoch, version, release, arch, summary, description, url FROM packages WHERE name = ? ORDER BY epoch DESC, version DESC, release DESC"
 
-var OBTAIN_PACKAGE_INFO = "SELECT rowid, pkgKey, name, epoch, version, release, flags FROM {} WHERE pkgKey = ?"
+var OBTAIN_PACKAGE_INFO string = "SELECT rowid, pkgKey, name, epoch, version, release, flags FROM %s WHERE pkgKey = ?"
 
-var OBTAIN_CO_PACKAGE = "SELECT DISTINCT(name) FROM packages WHERE rpm_sourcerpm = ?"
+var OBTAIN_CO_PACKAGE string = "SELECT DISTINCT(name) FROM packages WHERE rpm_sourcerpm = ?"
 
-var OBTAIN_PACKAGE_BY_SOURCE = "SELECT pkgKey, pkgId, name, rpm_sourcerpm, epoch, version, release, arch, summary, description, url FROM packages WHERE rpm_sourcerpm LIKE ? ORDER BY epoch DESC, version DESC, release DESC"
+var OBTAIN_PACKAGE_BY_SOURCE string = "SELECT pkgKey, pkgId, name, rpm_sourcerpm, epoch, version, release, arch, summary, description, url FROM packages WHERE rpm_sourcerpm LIKE ? ORDER BY epoch DESC, version DESC, release DESC"
 
-var OBTAIN_PACKAGE_BY = "SELECT p.pkgKey, p.pkgId, p.name, p.rpm_sourcerpm, p.epoch, p.version, p.release, p.arch, p.summary, p.description, p.url FROM packages p JOIN {} t ON t.pkgKey = p.pkgKey WHERE t.name = ? ORDER BY p.epoch DESC, p.version DESC, p.release DESC"
+var OBTAIN_PACKAGE_BY string = "SELECT p.pkgKey, p.pkgId, p.name, p.rpm_sourcerpm, p.epoch, p.version, p.release, p.arch, p.summary, p.description, p.url FROM packages p JOIN %s t ON t.pkgKey = p.pkgKey WHERE t.name = ? ORDER BY p.epoch DESC, p.version DESC, p.release DESC"
 
-var OBTAIN_FILEUNIT = "SELECT f.pkgKey, f.dirname, f.filenames, f.filetypes FROM filelist f JOIN packages p ON p.pkgId = ? WHERE f.pkgKey = p.pkgKey ORDER BY f.filenames"
+var OBTAIN_FILEUNIT string = "SELECT f.pkgKey, f.dirname, f.filenames, f.filetypes FROM filelist f JOIN packages p ON p.pkgId = ? WHERE f.pkgKey = p.pkgKey ORDER BY f.filenames"
 
-var OBTAIN_CHANGELOGS = "SELECT c.pkgKey, c.author, c.changelog, c.date FROM changelog c JOIN packages p ON p.pkgId = ? WHERE c.pkgKey = p.pkgKey ORDER BY c.date DESC"
+var OBTAIN_CHANGELOGS string = "SELECT c.pkgKey, c.author, c.changelog, c.date FROM changelog c JOIN packages p ON p.pkgId = ? WHERE c.pkgKey = p.pkgKey ORDER BY c.date DESC"

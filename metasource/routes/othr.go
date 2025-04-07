@@ -3,52 +3,49 @@ package routes
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
+	"github.com/go-chi/chi/v5"
+	"metasource/metasource/lookup"
 	"metasource/metasource/models/dict"
-	"metasource/metasource/models/sxml"
-	"metasource/metasource/runner"
+	"metasource/metasource/models/home"
 	"net/http"
-	"strings"
-	"sync"
 )
 
 func RetrieveOther(w http.ResponseWriter, r *http.Request) {
-	var name string
-	var list []string
-	var rslt_other *sxml.UnitOther
-	var wait sync.WaitGroup
+	var name, vers, repo string
 	var rslt dict.UnitOther
+	var data home.OthrRslt
+	var pack home.PackUnit
 	var expt error
 
-	list = strings.Split(r.URL.Path, "/")
+	name = chi.URLParam(r, "name")
+	vers = chi.URLParam(r, "vers")
 
-	if len(list) != 4 {
+	if name == "" || vers == "" {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Malformed request", r.Method, r.RequestURI, http.StatusBadRequest))
 		return
 	}
 
-	name = strings.TrimSpace(list[3])
-	if name == "" {
-		http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Absent package", r.Method, r.RequestURI, http.StatusNotFound))
+	pack, repo, expt = lookup.RetrievePrmy(&vers, &name)
+	if expt != nil {
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
 	}
 
-	wait.Add(1)
-	go runner.ImportOther(&wait, &rslt_other, &name)
-	wait.Wait()
-
-	if rslt_other == nil {
-		http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Absent result", r.Method, r.RequestURI, http.StatusNotFound))
+	data, expt = lookup.RetrieveOthr(&vers, &pack, &repo)
+	if expt != nil {
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
 	}
 
-	rslt.Repo = "release"
-	for _, item := range rslt_other.Changelog {
+	rslt = dict.UnitOther{}
+	rslt.Repo = repo
+	if rslt.Repo == "" {
+		rslt.Repo = "release"
+	}
+
+	for _, item := range data.List {
 		var unit dict.Changelog
-		unit = dict.Changelog{Author: item.Author, Changelog: item.Data, Date: item.Date}
+		unit = dict.Changelog{Author: item.Author.String, Changelog: item.Text.String, Date: uint64(item.Date)}
 		rslt.Changelogs = append(rslt.Changelogs, unit)
 	}
 
@@ -56,8 +53,6 @@ func RetrieveOther(w http.ResponseWriter, r *http.Request) {
 	expt = json.NewEncoder(w).Encode(rslt)
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] <%s> %d - Marshalling failed", r.Method, r.RequestURI, http.StatusInternalServerError))
 		return
 	}
-	slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] <%s> %d - Result dispatched", r.Method, r.RequestURI, http.StatusOK))
 }
