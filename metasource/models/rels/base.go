@@ -29,7 +29,7 @@ type Unit struct {
 	PackageManager          string `json:"package_manager"`
 	TestingRepository       string `json:"testing_repository"`
 	ReleasedOn              string `json:"released_on"`
-	Eol                     string `string:"eol"`
+	Eol                     string `json:"eol"`
 	MandateTestDaysCritPath int    `json:"critpath_mandatory_days_in_testing"`
 	MandateTestDaysStandard int    `json:"mandatory_days_in_testing"`
 	MinKarmaCritPath        int    `json:"critpath_min_karma"`
