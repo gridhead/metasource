@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"log/slog"
 	"metasource/metasource/config"
 	"metasource/metasource/driver"
@@ -60,6 +61,11 @@ func main() {
 		router = chi.NewRouter()
 		router.Use(middleware.Logger)
 		router.Use(middleware.Recoverer)
+		router.Use(cors.Handler(cors.Options{
+			AllowedOrigins: []string{"*"},
+			AllowedMethods: []string{"GET"},
+			AllowedHeaders: []string{"*"},
+		}))
 
 		router.Get("/branches", routes.RetrieveBranches)
 		router.Get("/{vers}/changelog/{name}", routes.RetrieveOther)
