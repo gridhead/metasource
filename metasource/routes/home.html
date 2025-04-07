@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="https://fedoraproject.org/favicon.ico" />
+    <title>MetaSource v0.1.0</title>
+    <style>
+        html {
+            min-width: 800px;
+        }
+
+        body {
+            padding-left: 1em;
+            margin: auto;
+            min-width: 750px;
+            max-width: 1100px;
+            display: block;
+        }
+
+        a:hover, a:link, a:visited, a:active {
+            color: #008080;
+        }
+
+        pre {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<pre>
+                                .
+                              .o8
+ooo. .oo.  .oo.    .ooooo.  .o888oo  .oooo.    .oooo.o  .ooooo.  oooo  oooo  oooo d8b  .ooooo.   .ooooo.
+`888P"Y88bP"Y88b  d88' `88b   888   `P  )88b  d88(  "8 d88' `88b `888  `888  `888""8P d88' `"Y8 d88' `88b
+ 888   888   888  888ooo888   888    .oP"888  `"Y88b.  888   888  888   888   888     888       888ooo888
+ 888   888   888  888    .o   888 . d8(  888  o.  )88b 888   888  888   888   888     888   .o8 888    .o
+o888o o888o o888o `Y8bod8P'   "888" `Y888""8o 8""888P' `Y8bod8P'  `V88V"V8P' d888b    `Y8bod8P' `Y8bod8P'
+
+Squint your eyes to appreciate the ASCII art                                                       v0.1.0
+
+
+ABOUT
+=====
+
+MetaSource is a performant source for RPM repositories metadata which has an
+access to the metadata of the different Fedora Linux package repositories and
+will serve you the most recent information available. It will parse through
+the "updates-testing" repository before moving onto the likes of "updates" and
+"releases" repository if no information is found in the previous repository.
+
+If you query for a non-existent branch - it will return an HTTP 400 error.
+
+If you query for a non-existent package - it will return an HTTP 404 error.
+
+Please report persistent HTTP 500 errors to the <a href="https://pagure.io/fedora-infrastructure/issues">Fedora Infrastructure</a> team.
+
+
+USAGE
+=====
+
+List all branches
+-----------------
+
+The list of all branches for which MetaSource contains information can be
+found at:
+
+    /branches
+
+    <a href="/branches">/branches</a>
+
+Note:
+    The "src_*" branches refer to the source repositories metadata, they will
+    thus return you information about the source package.
+    So to find the "BuildRequires" of a package, check its requires provided in
+    its information against in a "src_*" branch.
+
+
+Retrieve information about a package
+------------------------------------
+
+You can retrieve information about a specific package on a specific branch by
+querying:
+
+    /{branch}/pkg/{package name}
+
+So for example, for the "kernel-devel" package in the "rawhide" branch:
+
+    <a href="/rawhide/pkg/kernel-devel">/rawhide/pkg/kernel-devel</a>
+
+You can also retrieve information about a specific package on a specific branch
+via the name of its source package by querying:
+
+    /{branch}/srcpkg/{package name}
+
+So for example, for the "python-natsort" package in the "rawhide" branch:
+
+    <a href="/rawhide/srcpkg/python-natsort">/rawhide/srcpkg/python-natsort</a>
+
+
+Retrieve the list of files in a package
+---------------------------------------
+
+You can retrieve the list of files present in the specific package on a
+specific branch by querying:
+
+    /{branch}/files/{package name}
+
+So for example, for the "kernel-core" package in the "rawhide" branch:
+
+    <a href="/rawhide/files/kernel-core">/rawhide/files/kernel-core</a>
+
+
+Retrieve the changelog of a package
+-----------------------------------
+
+You can retrieve the changelog of a specific package on a specific branch by
+querying:
+
+    /{branch}/{package name}
+
+So for example, for the "systemd-networkd" package in the "rawhide" branch:
+
+    <a href="/rawhide/changelog/systemd-networkd">/rawhide/changelog/systemd-networkd</a>
+
+
+Retrieve the packages having a specific property
+------------------------------------------------
+
+You can retrieve the list of package information having a specific property by
+querying:
+
+    /{property}/{package name}
+
+These properties can be any of the following:
+
+    - requires
+    - provides
+    - obsoletes
+    - conflicts
+    - enhances
+    - recommends
+    - suggests
+    - supplements
+
+So for example,
+
+    packages requiring the "python3" package in the "rawhide" branch:
+    <a href="/rawhide/requires/python3">/rawhide/requires/python3</a>
+        To see what the "python3" package itself requires, check that info
+        using: <a href="/rawhide/pkg/python3">/rawhide/pkg/python3</a>
+
+    packages providing the "perl" package in the "rawhide" branch:
+    <a href="/rawhide/provides/perl">/rawhide/provides/perl</a>
+        To see what the "perl" package itself provides, check that info
+        using: <a href="/rawhide/pkg/perl">/rawhide/pkg/perl</a>
+
+    packages obsoleting the "dracut" package in the "rawhide" branch:
+    <a href="/rawhide/obsoletes/dracut">rawhide/obsoletes/dracut</a>
+        To see what the "dracut" package itself obsoletes, check that info
+        using: <a href="/rawhide/pkg/dracut">/rawhide/pkg/dracut</a>
+
+    packages conflicting the "mariadb" package in the "rawhide" branch:
+    <a href="/rawhide/conflicts/mariadb">rawhide/conflicts/mariadb</a>
+        To see what the "mariadb" package itself conflicts, check that info
+        using: <a href="/rawhide/pkg/mariadb">/rawhide/pkg/mariadb</a>
+
+    packages enhancing the "httpd" package in the "rawhide" branch:
+    <a href="/rawhide/enhances/httpd">rawhide/enhances/httpd</a>
+        To see what the "httpd" package itself enhances, check that info
+        using: <a href="/rawhide/pkg/httpd">/rawhide/pkg/httpd</a>
+
+    packages recommending the "flac" package in the "rawhide" branch:
+    <a href="/rawhide/recommends/flac">rawhide/recommends/flac</a>
+        To see what the "flac" package itself recommends, check that info
+        using: <a href="/rawhide/pkg/flac">/rawhide/pkg/flac</a>
+
+    packages suggesting the "systemd" package in the "rawhide" branch:
+    <a href="/rawhide/suggests/systemd">rawhide/suggests/systemd</a>
+        To see what the "systemd" package itself suggests, check that info
+        using: <a href="/rawhide/pkg/systemd">/rawhide/pkg/systemd</a>
+
+    packages supplementing the "podman" package in the "rawhide" branch:
+    <a href="/rawhide/supplements/podman">rawhide/supplements/podman</a>
+        To see what the "podman" package itself supplements, check that info
+        using: <a href="/rawhide/pkg/podman">/rawhide/pkg/podman</a>
+
+
+© 2015-2025 - Red Hat, Inc. - AGPLv3+ - Sources: <a href="https://github.com/gridhead/metasource">https://github.com/gridhead/metasource</a>
+
+</pre>
+</body>
+</html>
