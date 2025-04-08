@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func RetrieveOther(w http.ResponseWriter, r *http.Request) {
+func RetrieveOthr(w http.ResponseWriter, r *http.Request) {
 	var name, vers, repo string
 	var rslt dict.UnitOther
 	var data home.OthrRslt
@@ -25,13 +25,17 @@ func RetrieveOther(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pack, repo, expt = lookup.RetrievePrmy(&vers, &name)
+	pack, repo, expt = lookup.ReadPrmy(&vers, &name)
 	if expt != nil {
+		if expt.Error() == "no result found" {
+			http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
+			return
+		}
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
 	}
 
-	data, expt = lookup.RetrieveOthr(&vers, &pack, &repo)
+	data, expt = lookup.ReadOthr(&vers, &pack, &repo)
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
