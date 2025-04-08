@@ -8,6 +8,7 @@ import (
 	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"os"
+	"regexp"
 )
 
 func ReadSrce(vers *string, name *string) (home.PackUnit, string, error) {
@@ -15,11 +16,12 @@ func ReadSrce(vers *string, name *string) (home.PackUnit, string, error) {
 	var rows *sql.Rows
 	var stmt *sql.Stmt
 	var expt error
-	var item, path, sqlq string
+	var item, path, sqlq, escp, ptrn string
 	var exst bool
 	var pkls []home.PackUnit
 	var rslt, pkit home.PackUnit
 	var list []string
+	var rgxp *regexp.Regexp
 
 	list = []string{"updates-testing", "updates", "testing", ""}
 
@@ -70,14 +72,31 @@ func ReadSrce(vers *string, name *string) (home.PackUnit, string, error) {
 		pkls = append(pkls, pack)
 	}
 
-	for _, pkit = range pkls {
-		if pkit.Name.String == *name {
-			rslt = pkit
-			break
+	if !rslt.Id.Valid {
+		// Try matching with the package name
+		for _, pkit = range pkls {
+			if pkit.Name.String == *name {
+				rslt = pkit
+				break
+			}
 		}
 	}
 
 	if !rslt.Id.Valid {
+		// Try matching with the pattern of the source RPM name
+		escp = regexp.QuoteMeta(*name)
+		ptrn = fmt.Sprintf("^%s-[0-9]", escp)
+		rgxp = regexp.MustCompile(ptrn)
+		for _, pkit = range pkls {
+			if rgxp.MatchString(pkit.Source.String) {
+				rslt = pkit
+				break
+			}
+		}
+	}
+
+	if !rslt.Id.Valid {
+		// Give up
 		return rslt, item, errors.New("no result found")
 	}
 
