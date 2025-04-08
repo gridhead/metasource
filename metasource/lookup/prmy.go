@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func RetrievePrmy(vers *string, name *string) (home.PackUnit, string, error) {
+func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt
@@ -71,6 +71,10 @@ func RetrievePrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	expt = rows.Err()
 	if expt != nil {
 		return rslt, item, expt
+	}
+
+	if !rslt.Id.Valid {
+		return rslt, item, errors.New("no result found")
 	}
 
 	return rslt, item, nil
