@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"metasource/metasource/models/home"
 	"os"
+	"path/filepath"
 )
 
 func InitPath(loca string) error {
@@ -16,11 +17,11 @@ func InitPath(loca string) error {
 		if expt != nil {
 			return expt
 		}
-		expt = os.MkdirAll(fmt.Sprintf("%s/sxml", loca), 0755)
+		expt = os.MkdirAll(filepath.Join(loca, "sxml"), 0755)
 		if expt != nil {
 			return expt
 		}
-		expt = os.MkdirAll(fmt.Sprintf("%s/comp", loca), 0755)
+		expt = os.MkdirAll(filepath.Join(loca, "comp"), 0755)
 		if expt != nil {
 			return expt
 		}
@@ -39,11 +40,11 @@ func InitPath(loca string) error {
 func KillTemp(loca string) error {
 	var expt error
 
-	expt = os.RemoveAll(fmt.Sprintf("%s/sxml", loca))
+	expt = os.RemoveAll(filepath.Join(loca, "sxml"))
 	if expt != nil {
 		return expt
 	}
-	expt = os.RemoveAll(fmt.Sprintf("%s/comp", loca))
+	expt = os.RemoveAll(filepath.Join(loca, "comp"))
 	if expt != nil {
 		return expt
 	}

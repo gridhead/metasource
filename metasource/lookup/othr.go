@@ -7,6 +7,7 @@ import (
 	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"os"
+	"path/filepath"
 )
 
 func RetrieveOthr(vers *string, pack *home.PackUnit, repo *string) (home.OthrRslt, error) {
@@ -22,9 +23,9 @@ func RetrieveOthr(vers *string, pack *home.PackUnit, repo *string) (home.OthrRsl
 
 	switch *repo {
 	case "updates-testing", "updates", "testing":
-		path = fmt.Sprintf("%s/%s", config.DBFOLDER, fmt.Sprintf("metasource-%s-%s-other.sqlite", *vers, *repo))
+		path = filepath.Join(config.DBFOLDER, fmt.Sprintf("metasource-%s-%s-other.sqlite", *vers, *repo))
 	default:
-		path = fmt.Sprintf("%s/%s", config.DBFOLDER, fmt.Sprintf("metasource-%s-other.sqlite", *vers))
+		path = filepath.Join(config.DBFOLDER, fmt.Sprintf("metasource-%s-other.sqlite", *vers))
 	}
 	_, expt = os.Stat(path)
 	if os.IsNotExist(expt) {

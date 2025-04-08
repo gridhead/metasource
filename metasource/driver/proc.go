@@ -11,16 +11,17 @@ import (
 	"metasource/metasource/models/sxml"
 	"metasource/metasource/reader"
 	"net/http"
+	"path"
 	"strings"
 	"sync"
 	"time"
 )
 
 func HandleRepositories(unit *home.LinkUnit) error {
-	var mdlink, name, path string
+	var mdlink, name, loca string
 	var prmyinpt, fileinpt, othrinpt string
 	var prmyname, filename, othrname string
-	var prmypath, filepath, othrpath string
+	var prmyloca, fileloca, othrloca string
 	var expt error
 	var oper *http.Client
 	var rqst *http.Request
@@ -43,7 +44,7 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	entireChecksum = 3
 	entireGenerate = 3
 	entireSignalDB = 1
-	mdlink = fmt.Sprintf("%s/repomd.xml", unit.Link)
+	mdlink = path.Join(unit.Link, "repomd.xml")
 
 	rqst, expt = http.NewRequest("GET", mdlink, nil)
 	if expt != nil {
@@ -82,9 +83,9 @@ func HandleRepositories(unit *home.LinkUnit) error {
 		}
 
 		name = strings.Replace(item.Location.Href, "repodata/", "", -1)
-		path = fmt.Sprintf("%s/%s", unit.Link, name)
+		loca = path.Join(unit.Link, name)
 		hash = home.Checksum{Data: item.ChecksumOpen.Data, Type: item.ChecksumOpen.Type}
-		file = home.FileUnit{Name: name, Path: path, Type: item.Type, Hash: hash, Keep: true}
+		file = home.FileUnit{Name: name, Path: loca, Type: item.Type, Hash: hash, Keep: true}
 		list = append(list, file)
 	}
 
@@ -150,30 +151,30 @@ func HandleRepositories(unit *home.LinkUnit) error {
 
 		switch list[indx].Type {
 		case "primary", "filelists", "other":
-			path = list[indx].Path
+			loca = list[indx].Path
 			list[indx].Name = strings.Replace(list[indx].Name, ".xml", ".sqlite", -1)
-			list[indx].Path = fmt.Sprintf("%s/%s", config.DBFOLDER, list[indx].Name)
+			list[indx].Path = path.Join(config.DBFOLDER, list[indx].Name)
 			list[indx].Keep = true
 			switch list[indx].Type {
 			case "primary":
-				prmyinpt = path
+				prmyinpt = loca
 				prmyname = list[indx].Name
-				prmypath = list[indx].Path
+				prmyloca = list[indx].Path
 			case "filelists":
-				fileinpt = path
+				fileinpt = loca
 				filename = list[indx].Name
-				filepath = list[indx].Path
+				fileloca = list[indx].Path
 			case "other":
-				othrinpt = path
+				othrinpt = loca
 				othrname = list[indx].Name
-				othrpath = list[indx].Path
+				othrloca = list[indx].Path
 			}
 		default:
 			continue
 		}
 	}
 
-	pack, expt = reader.MakeDatabase(&unit.Name, &castupGenerate, &prmyinpt, &fileinpt, &othrinpt, &prmyname, &filename, &othrname, &prmypath, &filepath, &othrpath)
+	pack, expt = reader.MakeDatabase(&unit.Name, &castupGenerate, &prmyinpt, &fileinpt, &othrinpt, &prmyname, &filename, &othrname, &prmyloca, &fileloca, &othrloca)
 	if expt == nil && castupGenerate == entireGenerate {
 		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Database generation complete with %d package(s)", unit.Name, pack))
 	} else {

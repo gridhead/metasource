@@ -7,6 +7,7 @@ import (
 	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"os"
+	"path/filepath"
 )
 
 func RetrieveCoop(vers *string, pack *home.PackUnit, repo *string) ([]string, error) {
@@ -22,9 +23,9 @@ func RetrieveCoop(vers *string, pack *home.PackUnit, repo *string) ([]string, er
 
 	switch *repo {
 	case "updates-testing", "updates", "testing":
-		path = fmt.Sprintf("%s/%s", config.DBFOLDER, fmt.Sprintf("metasource-%s-%s-primary.sqlite", *vers, *repo))
+		path = filepath.Join(config.DBFOLDER, fmt.Sprintf("metasource-%s-%s-primary.sqlite", *vers, *repo))
 	default:
-		path = fmt.Sprintf("%s/%s", config.DBFOLDER, fmt.Sprintf("metasource-%s-primary.sqlite", *vers))
+		path = filepath.Join(config.DBFOLDER, fmt.Sprintf("metasource-%s-primary.sqlite", *vers))
 	}
 	_, expt = os.Stat(path)
 	if os.IsNotExist(expt) {

@@ -10,6 +10,7 @@ import (
 	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 )
@@ -34,7 +35,7 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 	}
 	defer inpt.Close()
 
-	path = fmt.Sprintf("%s/sxml/%s", config.DBFOLDER, name)
+	path = filepath.Join(config.DBFOLDER, "sxml", name)
 	otpt, expt = os.Create(path)
 	if expt != nil {
 		unit.Keep = false

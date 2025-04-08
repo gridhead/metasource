@@ -8,6 +8,7 @@ import (
 	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"os"
+	"path/filepath"
 )
 
 func RetrievePrmy(vers *string, name *string) (home.PackUnit, string, error) {
@@ -25,9 +26,9 @@ func RetrievePrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	for _, item = range list {
 		switch item {
 		case "updates-testing", "updates", "testing":
-			path = fmt.Sprintf("%s/%s", config.DBFOLDER, fmt.Sprintf("metasource-%s-%s-primary.sqlite", *vers, item))
+			path = filepath.Join(config.DBFOLDER, fmt.Sprintf("metasource-%s-%s-primary.sqlite", *vers, item))
 		default:
-			path = fmt.Sprintf("%s/%s", config.DBFOLDER, fmt.Sprintf("metasource-%s-primary.sqlite", *vers))
+			path = filepath.Join(config.DBFOLDER, fmt.Sprintf("metasource-%s-primary.sqlite", *vers))
 		}
 		_, expt = os.Stat(path)
 		if os.IsNotExist(expt) {

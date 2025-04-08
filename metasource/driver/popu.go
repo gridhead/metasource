@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"metasource/metasource/config"
 	"metasource/metasource/models/home"
+	"path"
 	"regexp"
 	"strings"
 )
@@ -35,7 +36,7 @@ func PopulateRepositories() ([]home.LinkUnit, error) {
 			}
 		}
 
-		urlx = fmt.Sprintf("%s/pub/fedora/linux/development/%s/Everything/x86_64/os/repodata/", config.DLSERVER, vers)
+		urlx = path.Join(config.DLSERVER, "/pub/fedora/linux/development/", vers, "/Everything/x86_64/os/repodata/")
 		unit = home.LinkUnit{Name: item, Link: urlx}
 		dict = append(dict, unit)
 		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Acquired repository location for %s/%s branch at %s", item, item, vers, urlx))
@@ -88,7 +89,7 @@ func PopulateRepositories() ([]home.LinkUnit, error) {
 
 	}
 
-	unit = home.LinkUnit{Name: "koji", Link: fmt.Sprintf("%s/rawhide/latest/x86_64/repodata/", config.KOJIREPO)}
+	unit = home.LinkUnit{Name: "koji", Link: path.Join(config.KOJIREPO, "/rawhide/latest/x86_64/repodata/")}
 	dict = append(dict, unit)
 	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Acquired repository location for %s/%s branch at %s", unit.Name, unit.Name, "rawhide", unit.Link))
 

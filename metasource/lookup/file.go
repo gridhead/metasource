@@ -7,6 +7,7 @@ import (
 	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"os"
+	"path/filepath"
 )
 
 func RetrieveFile(vers *string, pack *home.PackUnit, repo *string) (home.FilelistRslt, error) {
@@ -22,9 +23,9 @@ func RetrieveFile(vers *string, pack *home.PackUnit, repo *string) (home.Filelis
 
 	switch *repo {
 	case "updates-testing", "updates", "testing":
-		path = fmt.Sprintf("%s/%s", config.DBFOLDER, fmt.Sprintf("metasource-%s-%s-filelists.sqlite", *vers, *repo))
+		path = filepath.Join(config.DBFOLDER, fmt.Sprintf("metasource-%s-%s-filelists.sqlite", *vers, *repo))
 	default:
-		path = fmt.Sprintf("%s/%s", config.DBFOLDER, fmt.Sprintf("metasource-%s-filelists.sqlite", *vers))
+		path = filepath.Join(config.DBFOLDER, fmt.Sprintf("metasource-%s-filelists.sqlite", *vers))
 	}
 	_, expt = os.Stat(path)
 	if os.IsNotExist(expt) {

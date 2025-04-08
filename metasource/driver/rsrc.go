@@ -9,6 +9,7 @@ import (
 	"metasource/metasource/models/rels"
 	"net/http"
 	"net/url"
+	"path"
 	"time"
 )
 
@@ -26,7 +27,7 @@ func ListBranches(status string) ([]string, error) {
 
 	care = []string{"FEDORA", "FEDORA-EPEL", "FEDORA-EPEL-NEXT"}
 
-	burl = fmt.Sprintf("%s/releases", config.BODHIURL)
+	burl = path.Join(config.BODHIURL, "releases")
 	prms = url.Values{"state": {status}}
 	link = fmt.Sprintf("%s?%s", burl, prms.Encode())
 

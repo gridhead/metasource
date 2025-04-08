@@ -9,6 +9,7 @@ import (
 	"metasource/metasource/models/home"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -30,7 +31,7 @@ func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *i
 	head = strings.Split(unit.Name, ".")[0]
 	name = strings.Replace(unit.Name, head, fmt.Sprintf(config.FILENAME, *vers, unit.Type), -1)
 	urlx = fmt.Sprintf("%s", unit.Path)
-	loca = fmt.Sprintf("%s/comp/%s", config.DBFOLDER, name)
+	loca = filepath.Join(config.DBFOLDER, "comp", name)
 
 	file, expt = os.Create(loca)
 	if expt != nil {
