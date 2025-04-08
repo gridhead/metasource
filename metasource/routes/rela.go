@@ -37,13 +37,17 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pack, repo, expt = lookup.RetrievePrmy(&vers, &name)
+	pack, repo, expt = lookup.ReadPrmy(&vers, &name)
 	if expt != nil {
+		if expt.Error() == "no result found" {
+			http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
+			return
+		}
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
 	}
 
-	data, expt = lookup.RetrieveRelation(&vers, &pack, &repo, &rela)
+	data, expt = lookup.ReadRelation(&vers, &pack, &repo, &rela)
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
@@ -52,13 +56,13 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 	rslt = []dict.UnitPrimary{}
 
 	for _, item = range data {
-		extn, expt = lookup.RetrieveExtended(&vers, &item, &repo)
+		extn, expt = lookup.ReadExtn(&vers, &item, &repo)
 		if expt != nil {
 			http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 			return
 		}
 
-		coop, expt = lookup.RetrieveCoop(&vers, &item, &repo)
+		coop, expt = lookup.ReadCoop(&vers, &item, &repo)
 		if expt != nil {
 			http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 			return

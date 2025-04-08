@@ -26,19 +26,23 @@ func RetrieveSrce(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pack, repo, expt = lookup.RetrieveSrce(&vers, &name)
+	pack, repo, expt = lookup.ReadSrce(&vers, &name)
+	if expt != nil {
+		if expt.Error() == "no result found" {
+			http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
+			return
+		}
+		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
+		return
+	}
+
+	data, expt = lookup.ReadExtn(&vers, &pack, &repo)
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
 	}
 
-	data, expt = lookup.RetrieveExtended(&vers, &pack, &repo)
-	if expt != nil {
-		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
-		return
-	}
-
-	coop, expt = lookup.RetrieveCoop(&vers, &pack, &repo)
+	coop, expt = lookup.ReadCoop(&vers, &pack, &repo)
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return

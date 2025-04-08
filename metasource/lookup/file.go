@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func RetrieveFile(vers *string, pack *home.PackUnit, repo *string) (home.FilelistRslt, error) {
+func ReadFile(vers *string, pack *home.PackUnit, repo *string) (home.FilelistRslt, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt

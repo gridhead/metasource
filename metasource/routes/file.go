@@ -25,13 +25,17 @@ func RetrieveFileList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pack, repo, expt = lookup.RetrievePrmy(&vers, &name)
+	pack, repo, expt = lookup.ReadPrmy(&vers, &name)
 	if expt != nil {
+		if expt.Error() == "no result found" {
+			http.Error(w, fmt.Sprintf("%d: %s", http.StatusNotFound, http.StatusText(http.StatusNotFound)), http.StatusNotFound)
+			return
+		}
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return
 	}
 
-	data, expt = lookup.RetrieveFile(&vers, &pack, &repo)
+	data, expt = lookup.ReadFile(&vers, &pack, &repo)
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusBadRequest, http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
 		return

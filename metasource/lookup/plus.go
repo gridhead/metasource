@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func RetrieveExtended(vers *string, pack *home.PackUnit, repo *string) (home.ExtnUnit, error) {
+func ReadExtn(vers *string, pack *home.PackUnit, repo *string) (home.ExtnUnit, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt

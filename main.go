@@ -69,8 +69,8 @@ func main() {
 
 		router.Get("/", routes.RetrieveHome)
 		router.Get("/branches", routes.RetrieveBranches)
-		router.Get("/{vers}/changelog/{name}", routes.RetrieveOther)
-		router.Get("/{vers}/pkg/{name}", routes.RetrievePrimary)
+		router.Get("/{vers}/changelog/{name}", routes.RetrieveOthr)
+		router.Get("/{vers}/pkg/{name}", routes.RetrievePrmy)
 		router.Get("/{vers}/files/{name}", routes.RetrieveFileList)
 		router.Get("/{vers}/srcpkg/{name}", routes.RetrieveSrce)
 		router.Get("/{vers}/{rela}/{name}", routes.RetrieveRelation)

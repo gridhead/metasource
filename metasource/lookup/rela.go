@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func RetrieveRelation(vers *string, pack *home.PackUnit, repo *string, relation *string) ([]home.PackUnit, error) {
+func ReadRelation(vers *string, pack *home.PackUnit, repo *string, relation *string) ([]home.PackUnit, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt

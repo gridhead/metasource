@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-func RetrieveSrce(vers *string, name *string) (home.PackUnit, string, error) {
+func ReadSrce(vers *string, name *string) (home.PackUnit, string, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt
@@ -75,6 +75,10 @@ func RetrieveSrce(vers *string, name *string) (home.PackUnit, string, error) {
 			rslt = pkit
 			break
 		}
+	}
+
+	if !rslt.Id.Valid {
+		return rslt, item, errors.New("no result found")
 	}
 
 	return rslt, item, expt
