@@ -91,3 +91,21 @@ https://metasource.gridhead.net/
     ```
 12. Consider contributing to the project with methods that you see feasible.
 
+### Using Docker
+
+1.  Clone the repository contents to your local projects directory.
+    ```
+    $ git clone https://github.com/gridhead/metasource.git
+    ```
+2.  Make the cloned repository your present working directory.
+    ```
+    $ cd metasource
+    ```
+3.  Build the image.
+    ```
+    $ docker image build . -t metasource:latest
+    ```
+4.  Run the container.
+    ```
+    $ docker container run --volume="/tmp/metasource_db:/metasource_db" --publish="8080:8080" --name="metasource" --detach metasource:latest
+    ```
