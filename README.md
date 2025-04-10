@@ -22,6 +22,8 @@ https://metasource.gridhead.net/
 
 ## Development
 
+### Natively
+
 1.  Ensure the most recent version of `go`, `createrepo_c-devel` and `git` installed.
     ```
     $ sudo dnf install go createrepo_c-devel git --setopt=install_weak_deps=False
@@ -95,3 +97,44 @@ https://metasource.gridhead.net/
     ```
 12. Consider contributing to the project with methods that you see feasible.
 
+### Containerized
+
+1.  Ensure the most recent version of [`podman`](https://podman.io/docs/installation) is installed.
+    ```
+    $ sudo dnf install podman --setopt=install_weak_deps=False
+    ```
+2.  Clone the repository contents to your local projects directory.
+    ```
+    $ git clone https://github.com/gridhead/metasource.git
+    ```
+3.  Make the cloned repository your present working directory.
+    ```
+    $ cd metasource
+    ```
+4.  Build the image.
+    ```
+    $ podman build --security-opt label=disable --tag t0xic0der/metasource:latest .
+    ```
+5.  Populate the database.
+    ```
+    $ podman run \
+        --rm \
+        --volume="metasource_db:/db" \
+        --name="metasource" \
+        --detach metasource:latest \
+        -loglevel info \
+        -location /db \
+        database
+    ```
+6.  Execute the container.
+    ```
+    $ podman run \
+        --rm \
+        --publish="8080:8080" \
+        --volume="metasource_db:/db" \
+        --name="metasource" \
+        --detach metasource:latest \
+        -loglevel info \
+        -location /db \
+        dispense
+    ```
