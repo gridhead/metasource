@@ -61,6 +61,7 @@ func main() {
 		router = chi.NewRouter()
 		router.Use(middleware.Logger)
 		router.Use(middleware.Recoverer)
+		router.Use(middleware.StripSlashes)
 		router.Use(cors.Handler(cors.Options{
 			AllowedOrigins: []string{"*"},
 			AllowedMethods: []string{"GET"},
