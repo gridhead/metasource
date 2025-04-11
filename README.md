@@ -18,9 +18,9 @@ https://metasource.gridhead.net/
 
 ## Development
 
-1.  Ensure the most recent version of `go`, `createrepo_c-libs` and `git` installed.
+1.  Ensure the most recent version of `go`, `createrepo_c-devel` and `git` installed.
     ```
-    $ sudo dnf install go createrepo_c-libs git --install_weak_deps=False
+    $ sudo dnf install go createrepo_c-devel git --setopt=install_weak_deps=False
     ```
 2.  Clone the repository contents to your local projects directory.
     ```
@@ -32,11 +32,11 @@ https://metasource.gridhead.net/
     ```
 4.  Build the executable binary using the following command.
     ```
-    $ go build -o metasource main.go
+    $ go build -o meta main.go
     ```
 5.  View the help contents of the service's command line interface.
     ```
-    $ ./metasource --help
+    $ ./meta --help
     ```
     ```
     Usage of ./side:
@@ -46,7 +46,7 @@ https://metasource.gridhead.net/
             Set the application loglevel (default "info")
     ```
     ```
-    $ ./metasource
+    $ ./meta
     ```
     ```
     INF Expected either 'database' or 'dispense' subcommand
@@ -57,7 +57,7 @@ https://metasource.gridhead.net/
     ```
 7.  Download the databases to a temporary directory of your choice.
     ```
-    $ ./metasource -location /var/tmp/metadata database
+    $ ./meta -location /var/tmp/metadata database
     ```
 8.  Schedule the database fetching task in a periodically running cronjob.
     ```
@@ -65,7 +65,7 @@ https://metasource.gridhead.net/
     ```
 9.  Start the service backend after the database download has finished.
     ```
-    $ ./metasource -location /var/tmp/metadata dispense
+    $ ./meta -location /var/tmp/metadata dispense
     ```
 10. Access the service endpoints using the `curl` command or an internet browser.
     ```
