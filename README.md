@@ -18,9 +18,9 @@ https://metasource.gridhead.net/
 
 ## Development
 
-1.  Ensure the most recent version of `go`, `createrepo_c-libs` and `git` installed.
+1.  Ensure the most recent version of `go`, `createrepo_c-devel` and `git` installed.
     ```
-    $ sudo dnf install go createrepo_c-libs git --install_weak_deps=False
+    $ sudo dnf install go createrepo_c-devel git --setopt=install_weak_deps=False
     ```
 2.  Clone the repository contents to your local projects directory.
     ```
@@ -32,7 +32,7 @@ https://metasource.gridhead.net/
     ```
 4.  Build the executable binary using the following command.
     ```
-    $ go build -o metasource main.go
+    $ go build -o metaSource main.go
     ```
 5.  View the help contents of the service's command line interface.
     ```
