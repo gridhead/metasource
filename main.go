@@ -16,7 +16,7 @@ import (
 
 func main() {
 	var expt error
-	var lglvtext, location *string
+	var lglvtext, location, port *string
 	var database, dispense *flag.FlagSet
 
 	lglvtext = flag.String("loglevel", "info", "Set the application loglevel")
@@ -27,6 +27,7 @@ func main() {
 
 	database = flag.NewFlagSet("database", flag.ExitOnError)
 	dispense = flag.NewFlagSet("dispense", flag.ExitOnError)
+	port = dispense.String("port", "8080", "Port to run the server on")
 	config.SetLogger(lglvtext)
 
 	if flag.NArg() < 1 {
@@ -74,11 +75,12 @@ func main() {
 		router.Get("/{vers}/files/{name}", routes.RetrieveFileList)
 		router.Get("/{vers}/srcpkg/{name}", routes.RetrieveSrce)
 		router.Get("/{vers}/{rela}/{name}", routes.RetrieveRelation)
-		server = &http.Server{Addr: ":8080", Handler: router}
+		server = &http.Server{Addr: ":" + *port, Handler: router}
 
 		expt = server.ListenAndServe()
 		if expt != nil {
 			slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
+			os.Exit(1)
 		}
 	default:
 		slog.Log(nil, slog.LevelError, "Invalid subcommand")
