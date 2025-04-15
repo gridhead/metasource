@@ -16,20 +16,28 @@ func InitPath(loca string) error {
 		if expt != nil {
 			return expt
 		}
-		expt = os.MkdirAll(fmt.Sprintf("%s/sxml", loca), 0755)
-		if expt != nil {
-			return expt
-		}
-		expt = os.MkdirAll(fmt.Sprintf("%s/comp", loca), 0755)
-		if expt != nil {
-			return expt
-		}
 	} else {
-		expt = os.RemoveAll(loca)
-		if expt != nil {
-			return expt
+		// If the folder already exists, delete its contents without affecting the mount point
+		entries, err := os.ReadDir(loca)
+		if err != nil {
+			return err
 		}
-		return InitPath(loca)
+		for _, entry := range entries {
+			path := fmt.Sprintf("%s/%s", loca, entry.Name())
+			err = os.RemoveAll(path)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	expt = os.MkdirAll(fmt.Sprintf("%s/sxml", loca), 0755)
+	if expt != nil {
+		return expt
+	}
+	expt = os.MkdirAll(fmt.Sprintf("%s/comp", loca), 0755)
+	if expt != nil {
+		return expt
 	}
 
 	slog.Log(nil, slog.LevelWarn, "Directories initialized")
