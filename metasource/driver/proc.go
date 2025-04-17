@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"metasource/metasource/models/sxml"
 	"metasource/metasource/reader"
@@ -16,8 +15,8 @@ import (
 	"time"
 )
 
-func HandleRepositories(unit *home.LinkUnit) error {
-	var mdlink, name, path string
+func HandleRepositories(unit *home.LinkUnit, loca string) error {
+	var mdlink, name, path, temploca string
 	var prmyinpt, fileinpt, othrinpt string
 	var prmyname, filename, othrname string
 	var prmypath, filepath, othrpath string
@@ -37,6 +36,8 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	var castupSignalDB, entireSignalDB int
 	var wait sync.WaitGroup
 	var pack int64
+
+	temploca = fmt.Sprintf("%s/.%s-%s", loca, unit.Name, randomHex(8))
 
 	entireDownload = 3
 	entireWithdraw = 3
@@ -88,13 +89,18 @@ func HandleRepositories(unit *home.LinkUnit) error {
 		list = append(list, file)
 	}
 
+	expt = InitPath(temploca)
+	if expt != nil {
+		return expt
+	}
+
 	for indx := range list {
 		if !list[indx].Keep {
 			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
 			continue
 		}
 
-		expt = DownloadRepositories(&list[indx], &unit.Name, 0, &castupDownload)
+		expt = DownloadRepositories(&list[indx], &unit.Name, 0, &castupDownload, temploca)
 		if expt != nil {
 			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Download failed for %s due to %s", unit.Name, list[indx].Name, expt))
 		} else {
@@ -115,7 +121,7 @@ func HandleRepositories(unit *home.LinkUnit) error {
 		}
 
 		wait.Add(1)
-		go WithdrawArchives(&list[indx], &unit.Name, &wait, &castupWithdraw)
+		go WithdrawArchives(&list[indx], &unit.Name, &wait, &castupWithdraw, temploca)
 	}
 	wait.Wait()
 
@@ -152,7 +158,7 @@ func HandleRepositories(unit *home.LinkUnit) error {
 		case "primary", "filelists", "other":
 			path = list[indx].Path
 			list[indx].Name = strings.Replace(list[indx].Name, ".xml", ".sqlite", -1)
-			list[indx].Path = fmt.Sprintf("%s/%s", config.DBFOLDER, list[indx].Name)
+			list[indx].Path = fmt.Sprintf("%s/%s", temploca, list[indx].Name)
 			list[indx].Keep = true
 			switch list[indx].Type {
 			case "primary":
@@ -202,6 +208,11 @@ func HandleRepositories(unit *home.LinkUnit) error {
 		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Database indexing complete", unit.Name))
 	} else {
 		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Database indexing failed", unit.Name))
+	}
+
+	expt = KillTemp(temploca)
+	if expt != nil {
+		return expt
 	}
 
 	return nil
