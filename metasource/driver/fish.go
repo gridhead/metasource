@@ -7,14 +7,13 @@ import (
 	"github.com/ulikunitz/xz"
 	"io"
 	"log/slog"
-	"metasource/metasource/config"
 	"metasource/metasource/models/home"
 	"os"
 	"strings"
 	"sync"
 )
 
-func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, cast *int) {
+func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, cast *int, loca *string) {
 	defer wait.Done()
 
 	var inpt, otpt *os.File
@@ -34,7 +33,7 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 	}
 	defer inpt.Close()
 
-	path = fmt.Sprintf("%s/sxml/%s", config.DBFOLDER, name)
+	path = fmt.Sprintf("%s/sxml/%s", *loca, name)
 	otpt, expt = os.Create(path)
 	if expt != nil {
 		unit.Keep = false
