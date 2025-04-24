@@ -56,5 +56,4 @@ func PopulateFile(vers *string, wait *sync.WaitGroup, cast *int, name *string, p
 
 	*cast++
 	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete for %s", *vers, *name))
-	return
 }

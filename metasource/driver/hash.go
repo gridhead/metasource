@@ -62,5 +62,4 @@ func VerifyChecksum(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, cas
 
 	*cast++
 	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Checksum verified for %s", *vers, unit.Name))
-	return
 }
