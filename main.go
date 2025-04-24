@@ -43,7 +43,7 @@ func main() {
 			slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
 			os.Exit(1)
 		}
-		expt = driver.Database(*location)
+		expt = driver.Database()
 		if expt != nil {
 			slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
 			os.Exit(1)

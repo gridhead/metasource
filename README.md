@@ -51,7 +51,7 @@ https://metasource.gridhead.net/
     ```
     INF Expected either 'database' or 'dispense' subcommand
     ```
-6.  Ensure that you have at least 16GiB of storage for RPM repositories metadata.
+6.  Ensure that you have at least 10GiB of storage for RPM repositories metadata.
     ```
     $ df -h
     ```

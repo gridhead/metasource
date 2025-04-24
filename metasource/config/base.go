@@ -60,6 +60,8 @@ var FILENAME string = "metasource-%s-%s"
 
 var ATTEMPTS int64 = 4
 
+var RANDOM_LENGTH int64 = 8
+
 // SQLite3 queries for various purposes
 
 var SIGNAL_DATABASE string = "CREATE INDEX packageSource ON packages (rpm_sourcerpm)"
