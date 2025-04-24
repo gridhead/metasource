@@ -21,9 +21,8 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 	var expt error
 	var path string
 	var name string
-	var list []string
 
-	list = strings.Split(unit.Name, ".")
+	list := strings.Split(unit.Name, ".")
 	name = strings.Replace(unit.Name, fmt.Sprintf(".%s", list[len(list)-1]), "", -1)
 
 	inpt, expt = os.Open(unit.Path)

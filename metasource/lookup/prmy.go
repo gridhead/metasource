@@ -18,9 +18,8 @@ func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	var item, path, sqlq string
 	var exst bool
 	var rslt home.PackUnit
-	var list []string
 
-	list = []string{"updates-testing", "updates", "testing", ""}
+	list := []string{"updates-testing", "updates", "testing", ""}
 
 	for _, item = range list {
 		switch item {

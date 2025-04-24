@@ -48,8 +48,7 @@ func RetrieveOthr(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, item := range data.List {
-		var unit dict.Changelog
-		unit = dict.Changelog{Author: item.Author.String, Changelog: item.Text.String, Date: uint64(item.Date)}
+		unit := dict.Changelog{Author: item.Author.String, Changelog: item.Text.String, Date: uint64(item.Date)}
 		rslt.Changelogs = append(rslt.Changelogs, unit)
 	}
 

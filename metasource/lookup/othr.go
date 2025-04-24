@@ -16,9 +16,8 @@ func ReadOthr(vers *string, pack *home.PackUnit, repo *string) (home.OthrRslt, e
 	var expt error
 	var path, sqlq string
 	var lgit home.OthrUnit
-	var rslt home.OthrRslt
 
-	rslt = home.OthrRslt{List: []home.OthrUnit{}}
+	rslt := home.OthrRslt{List: []home.OthrUnit{}}
 
 	switch *repo {
 	case "updates-testing", "updates", "testing":
