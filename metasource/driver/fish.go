@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"context"
 	"fmt"
 	"github.com/klauspost/compress/gzip"
 	"github.com/klauspost/compress/zstd"
@@ -28,7 +29,7 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 	inpt, expt = os.Open(unit.Path)
 	if expt != nil {
 		unit.Keep = false
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
 		return
 	}
 	defer inpt.Close()
@@ -37,7 +38,7 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 	otpt, expt = os.Create(path)
 	if expt != nil {
 		unit.Keep = false
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
 		return
 	}
 	defer otpt.Close()
@@ -48,7 +49,7 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 		read, expt = gzip.NewReader(inpt)
 		if expt != nil {
 			unit.Keep = false
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
 			return
 		}
 		defer read.Close()
@@ -56,7 +57,7 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 		_, expt = io.Copy(otpt, read)
 		if expt != nil {
 			unit.Keep = false
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
 			return
 		}
 
@@ -66,7 +67,7 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 		read, expt = zstd.NewReader(inpt)
 		if expt != nil {
 			unit.Keep = false
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
 			return
 		}
 		defer read.Close()
@@ -74,7 +75,7 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 		_, expt = io.Copy(otpt, read)
 		if expt != nil {
 			unit.Keep = false
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
 			return
 		}
 	} else if strings.HasSuffix(unit.Name, ".xz") {
@@ -83,14 +84,14 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 		read, expt = xz.NewReader(inpt)
 		if expt != nil {
 			unit.Keep = false
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
 			return
 		}
 
 		_, expt = io.Copy(otpt, read)
 		if expt != nil {
 			unit.Keep = false
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))
 			return
 		}
 	}
@@ -99,6 +100,6 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 	unit.Name = name
 	unit.Path = path
 	*cast++
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Extraction complete for %s", *vers, name))
+	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction complete for %s", *vers, name))
 	return
 }

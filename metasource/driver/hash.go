@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"context"
 	"crypto/sha256"
 	"fmt"
 	"hash"
@@ -23,14 +24,14 @@ func VerifyChecksum(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, cas
 	file, expt = os.Open(unit.Path)
 	if expt != nil {
 		unit.Keep = false
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Checksum mismatch for %s due to %s", *vers, unit.Name, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Checksum mismatch for %s due to %s", *vers, unit.Name, expt.Error()))
 		return
 	}
 	defer file.Close()
 
 	if unit.Hash.Type != "sha256" {
 		unit.Keep = false
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Checksum mismatch for %s due to unknown checksum type", *vers, unit.Name))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Checksum mismatch for %s due to unknown checksum type", *vers, unit.Name))
 		return
 	}
 
@@ -47,7 +48,7 @@ func VerifyChecksum(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, cas
 		}
 		if expt != nil {
 			unit.Keep = false
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Checksum mismatch for %s due to %s", *vers, unit.Name, expt.Error()))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Checksum mismatch for %s due to %s", *vers, unit.Name, expt.Error()))
 			return
 		}
 	}
@@ -55,11 +56,11 @@ func VerifyChecksum(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, cas
 	csum = fmt.Sprintf("%x", read.Sum(nil))
 	if csum != unit.Hash.Data {
 		unit.Keep = false
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Checksum mismatch for %s", *vers, unit.Name))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Checksum mismatch for %s", *vers, unit.Name))
 		return
 	}
 
 	*cast++
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Checksum verified for %s", *vers, unit.Name))
+	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Checksum verified for %s", *vers, unit.Name))
 	return
 }

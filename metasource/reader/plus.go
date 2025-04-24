@@ -8,6 +8,7 @@ package reader
 import "C"
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -57,14 +58,14 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 
 	if prmyover_main || fileover_main || othrover_main {
 		expt = errors.New("metadata databases already exist or opening failed")
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		return numb, expt
 	}
 
 	iter = C.cr_PkgIterator_new(prmyconv, fileconv, othrconv, nil, nil, nil, nil, &gexp)
 	if iter == nil {
 		expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		return numb, expt
 	}
 	defer C.cr_PkgIterator_free(iter, &gexp)
@@ -88,7 +89,7 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 		if prmydone_main && filedone_main && othrdone_main {
 			numb += 1
 			head = fmt.Sprintf("%s %s:%s-%s.%s", C.GoString(pack.name), C.GoString(pack.epoch), C.GoString(pack.version), C.GoString(pack.release), C.GoString(pack.arch))
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] %s added.", *vers, head))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] %s added.", *vers, head))
 		}
 
 		C.cr_package_free(pack)
@@ -110,6 +111,6 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 		C.g_error_free(gexp)
 	}
 
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete with %d package(s)", *vers, numb))
+	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete with %d package(s)", *vers, numb))
 	return numb, nil
 }

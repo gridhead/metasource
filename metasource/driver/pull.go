@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -35,7 +36,7 @@ func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *i
 	file, expt = os.Create(path)
 	if expt != nil {
 		stab += 1
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
 		return DownloadRepositories(unit, vers, stab, cast, loca)
 	}
 	defer file.Close()
@@ -44,14 +45,14 @@ func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *i
 	rqst, expt = http.NewRequest("GET", urlx, nil)
 	if expt != nil {
 		stab += 1
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
 		return DownloadRepositories(unit, vers, stab, cast, loca)
 	}
 
 	resp, expt = oper.Do(rqst)
 	if expt != nil {
 		stab += 1
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
 		return DownloadRepositories(unit, vers, stab, cast, loca)
 	}
 	defer resp.Body.Close()
@@ -59,7 +60,7 @@ func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *i
 	_, expt = io.Copy(file, resp.Body)
 	if expt != nil {
 		stab += 1
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
 		return DownloadRepositories(unit, vers, stab, cast, loca)
 	}
 
@@ -67,6 +68,6 @@ func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *i
 	unit.Name = name
 	unit.Path = path
 	*cast++
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Stab complete for %s", *vers, unit.Name))
+	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Stab complete for %s", *vers, unit.Name))
 	return nil
 }

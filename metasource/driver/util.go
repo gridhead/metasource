@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"context"
 	"crypto/rand"
 	"fmt"
 	"log/slog"
@@ -36,7 +37,7 @@ func InitPath(vers *string, loca *string) error {
 		}
 	}
 
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Directories initialized", *vers))
+	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Directories initialized", *vers))
 	return nil
 }
 
@@ -53,7 +54,7 @@ func KillTemp(vers *string, loca *string) error {
 		return expt
 	}
 
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Directories removed", *vers))
+	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Directories removed", *vers))
 	return nil
 }
 
@@ -78,6 +79,6 @@ func TransferResult(vers *string, loca *string) error {
 		}
 	}
 
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Results transferred", *vers))
+	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Results transferred", *vers))
 	return nil
 }

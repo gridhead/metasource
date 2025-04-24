@@ -7,6 +7,7 @@ package reader
 */
 import "C"
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -31,7 +32,7 @@ func PopulateOthr(vers *string, wait *sync.WaitGroup, cast *int, name *string, p
 	defer C.cr_db_close(base, &gexp)
 	if gexp != nil {
 		expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		over <- true
 		return
 	} else {
@@ -42,7 +43,7 @@ func PopulateOthr(vers *string, wait *sync.WaitGroup, cast *int, name *string, p
 		rslt = int(C.cr_db_add_pkg(base, pack, &gexp))
 		if rslt != 0 {
 			expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 			done <- false
 		} else {
 			done <- true
@@ -54,6 +55,6 @@ func PopulateOthr(vers *string, wait *sync.WaitGroup, cast *int, name *string, p
 	}
 
 	*cast++
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete for %s", *vers, *name))
+	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete for %s", *vers, *name))
 	return
 }

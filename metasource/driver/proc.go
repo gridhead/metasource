@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"context"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -97,27 +98,27 @@ func HandleRepositories(unit *home.LinkUnit) error {
 
 	for indx := range list {
 		if !list[indx].Keep {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
 			continue
 		}
 
 		expt = DownloadRepositories(&list[indx], &unit.Name, 0, &castupDownload, &loca)
 		if expt != nil {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Download failed for %s due to %s", unit.Name, list[indx].Name, expt))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Download failed for %s due to %s", unit.Name, list[indx].Name, expt))
 		} else {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Download complete for %s", unit.Name, list[indx].Name))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Download complete for %s", unit.Name, list[indx].Name))
 		}
 	}
 
 	if castupDownload == entireDownload {
-		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Metadata download complete", unit.Name))
+		slog.Log(context.Background(), slog.LevelInfo, fmt.Sprintf("[%s] Metadata download complete", unit.Name))
 	} else {
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Metadata download failed", unit.Name))
+		slog.Log(context.Background(), slog.LevelError, fmt.Sprintf("[%s] Metadata download failed", unit.Name))
 	}
 
 	for indx := range list {
 		if !list[indx].Keep {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
 			continue
 		}
 
@@ -127,14 +128,14 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	wait.Wait()
 
 	if castupWithdraw == entireWithdraw {
-		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Metadata extraction complete", unit.Name))
+		slog.Log(context.Background(), slog.LevelInfo, fmt.Sprintf("[%s] Metadata extraction complete", unit.Name))
 	} else {
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Metadata extraction failed", unit.Name))
+		slog.Log(context.Background(), slog.LevelError, fmt.Sprintf("[%s] Metadata extraction failed", unit.Name))
 	}
 
 	for indx := range list {
 		if !list[indx].Keep {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
 			continue
 		}
 
@@ -144,14 +145,14 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	wait.Wait()
 
 	if castupChecksum == entireChecksum {
-		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Checksum verification complete", unit.Name))
+		slog.Log(context.Background(), slog.LevelInfo, fmt.Sprintf("[%s] Checksum verification complete", unit.Name))
 	} else {
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Checksum verification failed", unit.Name))
+		slog.Log(context.Background(), slog.LevelError, fmt.Sprintf("[%s] Checksum verification failed", unit.Name))
 	}
 
 	for indx := range list {
 		if !list[indx].Keep {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
 			continue
 		}
 
@@ -182,14 +183,14 @@ func HandleRepositories(unit *home.LinkUnit) error {
 
 	pack, expt = reader.MakeDatabase(&unit.Name, &castupGenerate, &prmyinpt, &fileinpt, &othrinpt, &prmyname, &filename, &othrname, &prmypath, &filepath, &othrpath)
 	if expt == nil && castupGenerate == entireGenerate {
-		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Database generation complete with %d package(s)", unit.Name, pack))
+		slog.Log(context.Background(), slog.LevelInfo, fmt.Sprintf("[%s] Database generation complete with %d package(s)", unit.Name, pack))
 	} else {
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Database generation failed due to %s", unit.Name, expt.Error()))
+		slog.Log(context.Background(), slog.LevelError, fmt.Sprintf("[%s] Database generation failed due to %s", unit.Name, expt.Error()))
 	}
 
 	for indx := range list {
 		if !list[indx].Keep {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Processing rejected as earlier midphase failed for %s", unit.Name, list[indx].Name))
 			continue
 		}
 
@@ -199,16 +200,16 @@ func HandleRepositories(unit *home.LinkUnit) error {
 
 		expt = GenerateSignal(&list[indx], &castupSignalDB)
 		if expt != nil {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Indexing failed for %s due to %s", unit.Name, list[indx].Name, expt))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Indexing failed for %s due to %s", unit.Name, list[indx].Name, expt))
 		} else {
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Indexing complete for %s", unit.Name, list[indx].Name))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Indexing complete for %s", unit.Name, list[indx].Name))
 		}
 	}
 
 	if castupSignalDB == entireSignalDB {
-		slog.Log(nil, slog.LevelInfo, fmt.Sprintf("[%s] Database indexing complete", unit.Name))
+		slog.Log(context.Background(), slog.LevelInfo, fmt.Sprintf("[%s] Database indexing complete", unit.Name))
 	} else {
-		slog.Log(nil, slog.LevelError, fmt.Sprintf("[%s] Database indexing failed", unit.Name))
+		slog.Log(context.Background(), slog.LevelError, fmt.Sprintf("[%s] Database indexing failed", unit.Name))
 	}
 
 	expt = KillTemp(&unit.Name, &loca)
