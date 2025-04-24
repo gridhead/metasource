@@ -9,7 +9,6 @@ import "C"
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -57,14 +56,14 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 	prmyover, fileover, othrover = nil, nil, nil
 
 	if prmyover_main || fileover_main || othrover_main {
-		expt = errors.New("metadata databases already exist or opening failed")
+		expt = fmt.Errorf("metadata databases already exist or opening failed")
 		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		return numb, expt
 	}
 
 	iter = C.cr_PkgIterator_new(prmyconv, fileconv, othrconv, nil, nil, nil, nil, &gexp)
 	if iter == nil {
-		expt = errors.New(C.GoString(gexp.message))
+		expt = fmt.Errorf("%s", C.GoString(gexp.message))
 		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		return numb, expt
 	}

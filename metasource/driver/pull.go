@@ -2,7 +2,6 @@ package driver
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -17,7 +16,7 @@ import (
 func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *int, loca *string) error {
 	if stab >= config.ATTEMPTS {
 		unit.Keep = false
-		return errors.New("most attempts failed")
+		return fmt.Errorf("most attempts failed")
 	}
 
 	var expt error

@@ -3,7 +3,6 @@ package driver
 import (
 	"context"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -60,7 +59,7 @@ func HandleRepositories(unit *home.LinkUnit) error {
 			return expt
 		}
 		if resp.StatusCode != 200 {
-			return errors.New(resp.Status)
+			return fmt.Errorf("%s", resp.Status)
 		}
 	}
 	defer resp.Body.Close()

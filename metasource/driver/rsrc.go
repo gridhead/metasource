@@ -2,7 +2,6 @@ package driver
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"metasource/metasource/config"
@@ -42,7 +41,7 @@ func ListBranches(status string) ([]string, error) {
 			return list, expt
 		}
 		if resp.StatusCode != 200 {
-			return list, errors.New(resp.Status)
+			return list, fmt.Errorf("%s", resp.Status)
 		}
 	}
 	defer resp.Body.Close()
