@@ -114,7 +114,7 @@ https://metasource.gridhead.net/
     ```
     $ podman run \
         --volume="metasource_db:/app/metasource_db" \
-        --name="metasource" \
+        --name="metasource" --rm \
         --detach metasource:latest \
         ./meta -location /app/metasource_db database
     ```
