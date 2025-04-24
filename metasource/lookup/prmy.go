@@ -58,12 +58,11 @@ func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	}
 	defer rows.Close()
 
-	for rows.Next() {
+	if rows.Next() {
 		expt = rows.Scan(&rslt.Key, &rslt.Id, &rslt.Name, &rslt.Source, &rslt.Epoch, &rslt.Version, &rslt.Release, &rslt.Arch, &rslt.Summary, &rslt.Desc, &rslt.Link)
 		if expt != nil {
 			return rslt, item, expt
 		}
-		break
 	}
 
 	expt = rows.Err()
