@@ -42,7 +42,7 @@ func ListBranches(status string) ([]string, error) {
 			return list, expt
 		}
 		if resp.StatusCode != 200 {
-			return list, errors.New(fmt.Sprintf("%s", resp.Status))
+			return list, errors.New(resp.Status)
 		}
 	}
 	defer resp.Body.Close()

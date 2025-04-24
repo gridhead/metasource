@@ -60,7 +60,7 @@ func HandleRepositories(unit *home.LinkUnit) error {
 			return expt
 		}
 		if resp.StatusCode != 200 {
-			return errors.New(fmt.Sprintf("%s", resp.Status))
+			return errors.New(resp.Status)
 		}
 	}
 	defer resp.Body.Close()

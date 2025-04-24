@@ -30,7 +30,7 @@ func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *i
 
 	head = strings.Split(unit.Name, ".")[0]
 	name = strings.Replace(unit.Name, head, fmt.Sprintf(config.FILENAME, *vers, unit.Type), -1)
-	urlx = fmt.Sprintf("%s", unit.Path)
+	urlx = unit.Path
 	path = fmt.Sprintf("%s/comp/%s", *loca, name)
 
 	file, expt = os.Create(path)

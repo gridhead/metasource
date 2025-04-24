@@ -31,7 +31,7 @@ func PopulatePrmy(vers *string, wait *sync.WaitGroup, cast *int, name *string, p
 	base = C.cr_db_open(conv, C.CR_DB_PRIMARY, &gexp)
 	defer C.cr_db_close(base, &gexp)
 	if gexp != nil {
-		expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
+		expt = errors.New(C.GoString(gexp.message))
 		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		over <- true
 		return
@@ -42,7 +42,7 @@ func PopulatePrmy(vers *string, wait *sync.WaitGroup, cast *int, name *string, p
 	for pack = range dbpk {
 		rslt = int(C.cr_db_add_pkg(base, pack, &gexp))
 		if rslt != 0 {
-			expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
+			expt = errors.New(C.GoString(gexp.message))
 			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 			done <- false
 		} else {

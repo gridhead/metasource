@@ -64,7 +64,7 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 
 	iter = C.cr_PkgIterator_new(prmyconv, fileconv, othrconv, nil, nil, nil, nil, &gexp)
 	if iter == nil {
-		expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
+		expt = errors.New(C.GoString(gexp.message))
 		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		return numb, expt
 	}

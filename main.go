@@ -41,19 +41,19 @@ func main() {
 	case "database":
 		expt = database.Parse(os.Args[2:])
 		if expt != nil {
-			slog.Log(context.Background(), slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+			slog.Log(context.Background(), slog.LevelError, expt.Error())
 			os.Exit(1)
 		}
 		expt = driver.Database()
 		if expt != nil {
-			slog.Log(context.Background(), slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+			slog.Log(context.Background(), slog.LevelError, expt.Error())
 			os.Exit(1)
 		}
 		os.Exit(0)
 	case "dispense":
 		expt = dispense.Parse(os.Args[2:])
 		if expt != nil {
-			slog.Log(context.Background(), slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+			slog.Log(context.Background(), slog.LevelError, expt.Error())
 			os.Exit(1)
 		}
 
