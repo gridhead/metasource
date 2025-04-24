@@ -45,9 +45,9 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 	go PopulateFile(vers, &wait, cast, filename, filepath, filepack, filedone, fileover)
 	go PopulateOthr(vers, &wait, cast, othrname, othrpath, othrpack, othrdone, othrover)
 
-	prmyover_main, _ = <-prmyover
-	fileover_main, _ = <-fileover
-	othrover_main, _ = <-othrover
+	prmyover_main = <-prmyover
+	fileover_main = <-fileover
+	othrover_main = <-othrover
 
 	close(prmyover)
 	close(fileover)
@@ -81,9 +81,9 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 		filepack <- pack
 		othrpack <- pack
 
-		prmydone_main, _ = <-prmydone
-		filedone_main, _ = <-filedone
-		othrdone_main, _ = <-othrdone
+		prmydone_main = <-prmydone
+		filedone_main = <-filedone
+		othrdone_main = <-othrdone
 
 		if prmydone_main && filedone_main && othrdone_main {
 			numb += 1
