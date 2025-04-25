@@ -21,15 +21,15 @@ func InitPath(vers *string, loca *string) error {
 
 	_, expt = os.Stat(*loca)
 	if os.IsNotExist(expt) {
-		expt = os.MkdirAll(fmt.Sprintf("%s/sxml", *loca), 0755)
+		expt = os.MkdirAll(fmt.Sprintf("%s/sxml", *loca), 0750)
 		if expt != nil {
 			return expt
 		}
-		expt = os.MkdirAll(fmt.Sprintf("%s/sxml", *loca), 0755)
+		expt = os.MkdirAll(fmt.Sprintf("%s/sxml", *loca), 0750)
 		if expt != nil {
 			return expt
 		}
-		expt = os.MkdirAll(fmt.Sprintf("%s/comp", *loca), 0755)
+		expt = os.MkdirAll(fmt.Sprintf("%s/comp", *loca), 0750)
 		if expt != nil {
 			return expt
 		}

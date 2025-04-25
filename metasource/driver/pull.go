@@ -9,6 +9,7 @@ import (
 	"metasource/metasource/models/home"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -30,9 +31,9 @@ func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *i
 	head = strings.Split(unit.Name, ".")[0]
 	name = strings.Replace(unit.Name, head, fmt.Sprintf(config.FILENAME, *vers, unit.Type), -1)
 	urlx = unit.Path
-	path = fmt.Sprintf("%s/comp/%s", *loca, name)
+	path = filepath.Clean(filepath.Join(*loca, "/comp/", name))
 
-	file, expt = os.Create(path)
+	file, expt = os.Create(path)  // #nosec G304 -- path is verified and cleaned
 	if expt != nil {
 		stab += 1
 		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))

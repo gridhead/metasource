@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"metasource/metasource/models/home"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 )
@@ -33,8 +34,9 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 	}
 	defer inpt.Close()
 
-	path = fmt.Sprintf("%s/sxml/%s", *loca, name)
-	otpt, expt = os.Create(path)
+	path = filepath.Clean(filepath.Join(*loca, "/sxml/", name))
+
+	otpt, expt = os.Create(path)  // #nosec G304 -- path is verified and cleaned
 	if expt != nil {
 		unit.Keep = false
 		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))

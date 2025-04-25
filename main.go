@@ -13,6 +13,7 @@ import (
 	"metasource/metasource/routes"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
@@ -77,7 +78,7 @@ func main() {
 		router.Get("/{vers}/files/{name}", routes.RetrieveFileList)
 		router.Get("/{vers}/srcpkg/{name}", routes.RetrieveSrce)
 		router.Get("/{vers}/{rela}/{name}", routes.RetrieveRelation)
-		server = &http.Server{Addr: ":" + *port, Handler: router}
+		server = &http.Server{Addr: ":" + *port, Handler: router, ReadHeaderTimeout: 10 * time.Second}
 
 		expt = server.ListenAndServe()
 		if expt != nil {
