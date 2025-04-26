@@ -8,7 +8,7 @@ package reader
 import "C"
 
 import (
-	"errors"
+	"context"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -45,9 +45,9 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 	go PopulateFile(vers, &wait, cast, filename, filepath, filepack, filedone, fileover)
 	go PopulateOthr(vers, &wait, cast, othrname, othrpath, othrpack, othrdone, othrover)
 
-	prmyover_main, _ = <-prmyover
-	fileover_main, _ = <-fileover
-	othrover_main, _ = <-othrover
+	prmyover_main = <-prmyover
+	fileover_main = <-fileover
+	othrover_main = <-othrover
 
 	close(prmyover)
 	close(fileover)
@@ -56,15 +56,15 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 	prmyover, fileover, othrover = nil, nil, nil
 
 	if prmyover_main || fileover_main || othrover_main {
-		expt = errors.New("metadata databases already exist or opening failed")
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
+		expt = fmt.Errorf("metadata databases already exist or opening failed")
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		return numb, expt
 	}
 
 	iter = C.cr_PkgIterator_new(prmyconv, fileconv, othrconv, nil, nil, nil, nil, &gexp)
 	if iter == nil {
-		expt = errors.New(fmt.Sprintf("%s", C.GoString(gexp.message)))
-		slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
+		expt = fmt.Errorf("%s", C.GoString(gexp.message))
+		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation failed due to %s", *vers, expt.Error()))
 		return numb, expt
 	}
 	defer C.cr_PkgIterator_free(iter, &gexp)
@@ -81,14 +81,14 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 		filepack <- pack
 		othrpack <- pack
 
-		prmydone_main, _ = <-prmydone
-		filedone_main, _ = <-filedone
-		othrdone_main, _ = <-othrdone
+		prmydone_main = <-prmydone
+		filedone_main = <-filedone
+		othrdone_main = <-othrdone
 
 		if prmydone_main && filedone_main && othrdone_main {
 			numb += 1
 			head = fmt.Sprintf("%s %s:%s-%s.%s", C.GoString(pack.name), C.GoString(pack.epoch), C.GoString(pack.version), C.GoString(pack.release), C.GoString(pack.arch))
-			slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] %s added.", *vers, head))
+			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] %s added.", *vers, head))
 		}
 
 		C.cr_package_free(pack)
@@ -110,6 +110,6 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 		C.g_error_free(gexp)
 	}
 
-	slog.Log(nil, slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete with %d package(s)", *vers, numb))
+	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Database generation complete with %d package(s)", *vers, numb))
 	return numb, nil
 }

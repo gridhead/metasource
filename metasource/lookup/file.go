@@ -16,9 +16,8 @@ func ReadFile(vers *string, pack *home.PackUnit, repo *string) (home.FilelistRsl
 	var expt error
 	var path, sqlq string
 	var flit home.FilelistUnit
-	var rslt home.FilelistRslt
 
-	rslt = home.FilelistRslt{List: []home.FilelistUnit{}}
+	rslt := home.FilelistRslt{List: []home.FilelistUnit{}}
 
 	switch *repo {
 	case "updates-testing", "updates", "testing":

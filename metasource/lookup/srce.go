@@ -2,7 +2,6 @@ package lookup
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"metasource/metasource/config"
@@ -40,7 +39,7 @@ func ReadSrce(vers *string, name *string) (home.PackUnit, string, error) {
 	}
 
 	if !exst {
-		return rslt, item, errors.New("database file does not exist")
+		return rslt, item, fmt.Errorf("database file does not exist")
 	}
 
 	base, expt = sql.Open("sqlite3", path)
@@ -97,7 +96,7 @@ func ReadSrce(vers *string, name *string) (home.PackUnit, string, error) {
 
 	if !rslt.Id.Valid {
 		// Give up
-		return rslt, item, errors.New("no result found")
+		return rslt, item, fmt.Errorf("no result found")
 	}
 
 	return rslt, item, expt

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -12,6 +13,7 @@ import (
 	"metasource/metasource/routes"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
@@ -31,8 +33,8 @@ func main() {
 	config.SetLogger(lglvtext)
 
 	if flag.NArg() < 1 {
-		slog.Log(nil, slog.LevelError, "Invalid subcommand")
-		slog.Log(nil, slog.LevelInfo, "Expected either 'database' or 'dispense' subcommand")
+		slog.Log(context.Background(), slog.LevelError, "Invalid subcommand")
+		slog.Log(context.Background(), slog.LevelInfo, "Expected either 'database' or 'dispense' subcommand")
 		os.Exit(1)
 	}
 
@@ -40,19 +42,19 @@ func main() {
 	case "database":
 		expt = database.Parse(os.Args[2:])
 		if expt != nil {
-			slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+			slog.Log(context.Background(), slog.LevelError, expt.Error())
 			os.Exit(1)
 		}
 		expt = driver.Database()
 		if expt != nil {
-			slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+			slog.Log(context.Background(), slog.LevelError, expt.Error())
 			os.Exit(1)
 		}
 		os.Exit(0)
 	case "dispense":
 		expt = dispense.Parse(os.Args[2:])
 		if expt != nil {
-			slog.Log(nil, slog.LevelError, fmt.Sprintf("%s", expt.Error()))
+			slog.Log(context.Background(), slog.LevelError, expt.Error())
 			os.Exit(1)
 		}
 
@@ -76,16 +78,16 @@ func main() {
 		router.Get("/{vers}/files/{name}", routes.RetrieveFileList)
 		router.Get("/{vers}/srcpkg/{name}", routes.RetrieveSrce)
 		router.Get("/{vers}/{rela}/{name}", routes.RetrieveRelation)
-		server = &http.Server{Addr: ":" + *port, Handler: router}
+		server = &http.Server{Addr: ":" + *port, Handler: router, ReadHeaderTimeout: 10 * time.Second}
 
 		expt = server.ListenAndServe()
 		if expt != nil {
-			slog.Log(nil, slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
+			slog.Log(context.Background(), slog.LevelError, fmt.Sprintf("Error occurred. %s.", expt.Error()))
 			os.Exit(1)
 		}
 	default:
-		slog.Log(nil, slog.LevelError, "Invalid subcommand")
-		slog.Log(nil, slog.LevelInfo, "Expected either 'database' or 'dispense' subcommand")
+		slog.Log(context.Background(), slog.LevelError, "Invalid subcommand")
+		slog.Log(context.Background(), slog.LevelInfo, "Expected either 'database' or 'dispense' subcommand")
 		os.Exit(1)
 	}
 }

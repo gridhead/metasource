@@ -66,8 +66,7 @@ func RetrievePrmy(w http.ResponseWriter, r *http.Request) {
 
 	rslt.Supplements = []dict.UnitBase{}
 	for _, item := range data.Supplements {
-		var utbs dict.UnitBase
-		utbs = dict.UnitBase{
+		utbs := dict.UnitBase{
 			Version: item.Version.String,
 			Epoch:   item.Epoch.String,
 			Release: item.Release.String,
@@ -79,8 +78,7 @@ func RetrievePrmy(w http.ResponseWriter, r *http.Request) {
 
 	rslt.Recommends = []dict.UnitBase{}
 	for _, item := range data.Recommends {
-		var utbs dict.UnitBase
-		utbs = dict.UnitBase{
+		utbs := dict.UnitBase{
 			Version: item.Version.String,
 			Epoch:   item.Epoch.String,
 			Release: item.Release.String,
@@ -92,8 +90,7 @@ func RetrievePrmy(w http.ResponseWriter, r *http.Request) {
 
 	rslt.Conflicts = []dict.UnitBase{}
 	for _, item := range data.Conflicts {
-		var utbs dict.UnitBase
-		utbs = dict.UnitBase{
+		utbs := dict.UnitBase{
 			Version: item.Version.String,
 			Epoch:   item.Epoch.String,
 			Release: item.Release.String,
@@ -105,8 +102,7 @@ func RetrievePrmy(w http.ResponseWriter, r *http.Request) {
 
 	rslt.Obsoletes = []dict.UnitBase{}
 	for _, item := range data.Obsoletes {
-		var utbs dict.UnitBase
-		utbs = dict.UnitBase{
+		utbs := dict.UnitBase{
 			Version: item.Version.String,
 			Epoch:   item.Epoch.String,
 			Release: item.Release.String,
@@ -118,8 +114,7 @@ func RetrievePrmy(w http.ResponseWriter, r *http.Request) {
 
 	rslt.Provides = []dict.UnitBase{}
 	for _, item := range data.Provides {
-		var utbs dict.UnitBase
-		utbs = dict.UnitBase{
+		utbs := dict.UnitBase{
 			Version: item.Version.String,
 			Epoch:   item.Epoch.String,
 			Release: item.Release.String,
@@ -131,8 +126,7 @@ func RetrievePrmy(w http.ResponseWriter, r *http.Request) {
 
 	rslt.Requires = []dict.UnitBase{}
 	for _, item := range data.Requires {
-		var utbs dict.UnitBase
-		utbs = dict.UnitBase{
+		utbs := dict.UnitBase{
 			Version: item.Version.String,
 			Epoch:   item.Epoch.String,
 			Release: item.Release.String,
@@ -144,8 +138,7 @@ func RetrievePrmy(w http.ResponseWriter, r *http.Request) {
 
 	rslt.Enhances = []dict.UnitBase{}
 	for _, item := range data.Enhances {
-		var utbs dict.UnitBase
-		utbs = dict.UnitBase{
+		utbs := dict.UnitBase{
 			Version: item.Version.String,
 			Epoch:   item.Epoch.String,
 			Release: item.Release.String,
@@ -157,8 +150,7 @@ func RetrievePrmy(w http.ResponseWriter, r *http.Request) {
 
 	rslt.Suggests = []dict.UnitBase{}
 	for _, item := range data.Suggests {
-		var utbs dict.UnitBase
-		utbs = dict.UnitBase{
+		utbs := dict.UnitBase{
 			Version: item.Version.String,
 			Epoch:   item.Epoch.String,
 			Release: item.Release.String,

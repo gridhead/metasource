@@ -71,7 +71,7 @@ type OthrUnit struct {
 	Key    int
 	Author sql.NullString
 	Text   sql.NullString
-	Date   int
+	Date   uint64
 }
 
 type OthrRslt struct {

@@ -2,7 +2,6 @@ package lookup
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"metasource/metasource/config"
@@ -57,7 +56,7 @@ func ReadRelation(vers *string, pack *home.PackUnit, repo *string, relation *str
 	}
 
 	if !okay {
-		return rslt, errors.New("mistaken relationship")
+		return rslt, fmt.Errorf("mistaken relationship")
 	}
 
 	sqlq = fmt.Sprintf(config.OBTAIN_PACKAGE_BY, *relation)

@@ -86,8 +86,7 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 
 		pkit.Supplements = []dict.UnitBase{}
 		for _, dpit = range extn.Supplements {
-			var utbs dict.UnitBase
-			utbs = dict.UnitBase{
+			utbs := dict.UnitBase{
 				Version: dpit.Version.String,
 				Epoch:   dpit.Epoch.String,
 				Release: dpit.Release.String,
@@ -99,8 +98,7 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 
 		pkit.Recommends = []dict.UnitBase{}
 		for _, dpit = range extn.Recommends {
-			var utbs dict.UnitBase
-			utbs = dict.UnitBase{
+			utbs := dict.UnitBase{
 				Version: dpit.Version.String,
 				Epoch:   dpit.Epoch.String,
 				Release: dpit.Release.String,
@@ -112,8 +110,7 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 
 		pkit.Conflicts = []dict.UnitBase{}
 		for _, dpit = range extn.Conflicts {
-			var utbs dict.UnitBase
-			utbs = dict.UnitBase{
+			utbs := dict.UnitBase{
 				Version: dpit.Version.String,
 				Epoch:   dpit.Epoch.String,
 				Release: dpit.Release.String,
@@ -125,8 +122,7 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 
 		pkit.Obsoletes = []dict.UnitBase{}
 		for _, dpit = range extn.Obsoletes {
-			var utbs dict.UnitBase
-			utbs = dict.UnitBase{
+			utbs := dict.UnitBase{
 				Version: dpit.Version.String,
 				Epoch:   dpit.Epoch.String,
 				Release: dpit.Release.String,
@@ -138,8 +134,7 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 
 		pkit.Provides = []dict.UnitBase{}
 		for _, dpit = range extn.Provides {
-			var utbs dict.UnitBase
-			utbs = dict.UnitBase{
+			utbs := dict.UnitBase{
 				Version: dpit.Version.String,
 				Epoch:   dpit.Epoch.String,
 				Release: dpit.Release.String,
@@ -151,8 +146,7 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 
 		pkit.Requires = []dict.UnitBase{}
 		for _, dpit = range extn.Requires {
-			var utbs dict.UnitBase
-			utbs = dict.UnitBase{
+			utbs := dict.UnitBase{
 				Version: dpit.Version.String,
 				Epoch:   dpit.Epoch.String,
 				Release: dpit.Release.String,
@@ -164,8 +158,7 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 
 		pkit.Enhances = []dict.UnitBase{}
 		for _, dpit = range extn.Enhances {
-			var utbs dict.UnitBase
-			utbs = dict.UnitBase{
+			utbs := dict.UnitBase{
 				Version: dpit.Version.String,
 				Epoch:   dpit.Epoch.String,
 				Release: dpit.Release.String,
@@ -177,8 +170,7 @@ func RetrieveRelation(w http.ResponseWriter, r *http.Request) {
 
 		pkit.Suggests = []dict.UnitBase{}
 		for _, dpit = range extn.Suggests {
-			var utbs dict.UnitBase
-			utbs = dict.UnitBase{
+			utbs := dict.UnitBase{
 				Version: dpit.Version.String,
 				Epoch:   dpit.Epoch.String,
 				Release: dpit.Release.String,
