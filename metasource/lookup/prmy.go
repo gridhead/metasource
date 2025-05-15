@@ -2,7 +2,6 @@ package lookup
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"metasource/metasource/config"
@@ -18,9 +17,8 @@ func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	var item, path, sqlq string
 	var exst bool
 	var rslt home.PackUnit
-	var list []string
 
-	list = []string{"updates-testing", "updates", "testing", ""}
+	list := []string{"updates-testing", "updates", "testing", ""}
 
 	for _, item = range list {
 		switch item {
@@ -37,7 +35,7 @@ func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	}
 
 	if !exst {
-		return rslt, item, errors.New("database file does not exist")
+		return rslt, item, fmt.Errorf("database file does not exist")
 	}
 
 	base, expt = sql.Open("sqlite3", path)
@@ -60,12 +58,11 @@ func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	}
 	defer rows.Close()
 
-	for rows.Next() {
+	if rows.Next() {
 		expt = rows.Scan(&rslt.Key, &rslt.Id, &rslt.Name, &rslt.Source, &rslt.Epoch, &rslt.Version, &rslt.Release, &rslt.Arch, &rslt.Summary, &rslt.Desc, &rslt.Link)
 		if expt != nil {
 			return rslt, item, expt
 		}
-		break
 	}
 
 	expt = rows.Err()
@@ -74,7 +71,7 @@ func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	}
 
 	if !rslt.Id.Valid {
-		return rslt, item, errors.New("no result found")
+		return rslt, item, fmt.Errorf("no result found")
 	}
 
 	return rslt, item, nil

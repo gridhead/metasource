@@ -1,6 +1,7 @@
 package driver
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"metasource/metasource/models/home"
@@ -19,7 +20,7 @@ func Database() error {
 	for _, item = range list {
 		expt = HandleRepositories(&item)
 		if expt != nil {
-			slog.Log(nil, slog.LevelWarn, fmt.Sprintf("[%s] Repository handling failed due to %s", item.Name, expt.Error()))
+			slog.Log(context.Background(), slog.LevelWarn, fmt.Sprintf("[%s] Repository handling failed due to %s", item.Name, expt.Error()))
 		}
 	}
 
