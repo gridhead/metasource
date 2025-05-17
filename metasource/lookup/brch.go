@@ -22,7 +22,7 @@ func InsertBranch(list *[]string, name *string) {
 	}
 }
 
-func ReadBranches() ([]string, error) {
+var ReadBranches = func() ([]string, error) {
 	var expt error
 	var rslt []string
 	var item os.DirEntry
