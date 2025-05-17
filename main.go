@@ -72,6 +72,7 @@ func main() {
 		}))
 
 		router.Get("/", routes.RetrieveHome)
+		router.Get("/assets/*", routes.RetrieveStatic)
 		router.Get("/branches", routes.RetrieveBranches)
 		router.Get("/{vers}/changelog/{name}", routes.RetrieveOthr)
 		router.Get("/{vers}/pkg/{name}", routes.RetrievePrmy)
