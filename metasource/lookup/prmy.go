@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
+var ReadPrmy = func(vers *string, name *string) (home.PackUnit, string, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt
@@ -32,13 +32,14 @@ func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 			continue
 		}
 		exst = true
+		break
 	}
 
 	if !exst {
 		return rslt, item, fmt.Errorf("database file does not exist")
 	}
 
-	base, expt = sql.Open("sqlite3", path)
+	base, expt = sql.Open(config.DBDRIVER, path)
 	if expt != nil {
 		return rslt, item, expt
 	}
@@ -52,10 +53,7 @@ func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 	}
 	defer stmt.Close()
 
-	rows, expt = stmt.Query(*name)
-	if expt != nil {
-		return rslt, item, expt
-	}
+	rows, _ = stmt.Query(*name)
 	defer rows.Close()
 
 	if rows.Next() {
@@ -63,11 +61,6 @@ func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
 		if expt != nil {
 			return rslt, item, expt
 		}
-	}
-
-	expt = rows.Err()
-	if expt != nil {
-		return rslt, item, expt
 	}
 
 	if !rslt.Id.Valid {

@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func PopulateRepositories() ([]home.LinkUnit, error) {
+var PopulateRepositories = func() ([]home.LinkUnit, error) {
 	var dict []home.LinkUnit
 	var expt error
 	var list []string
@@ -86,7 +86,6 @@ func PopulateRepositories() ([]home.LinkUnit, error) {
 			dict = append(dict, unit)
 			slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Acquired repository location for src_%s/%s branch at %s", name, name, vers, urlx))
 		}
-
 	}
 
 	unit = home.LinkUnit{Name: "koji", Link: fmt.Sprintf("%s/rawhide/latest/x86_64/repodata/", config.KOJIREPO)}

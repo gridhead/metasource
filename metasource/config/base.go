@@ -52,6 +52,8 @@ var REPODICT = map[string][]string{
 	"epel-next": {"%s", "%s-testing"},
 }
 
+var ASSETSDB string = "assets"
+
 var DBFOLDER string = "/var/tmp/metasource"
 
 var WAITTIME int = 10
@@ -59,6 +61,8 @@ var WAITTIME int = 10
 var FILENAME string = "metasource-%s-%s"
 
 var ATTEMPTS int64 = 4
+
+var DBDRIVER string = "sqlite3"
 
 var RANDOM_LENGTH int64 = 8
 

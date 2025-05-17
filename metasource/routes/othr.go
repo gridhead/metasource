@@ -53,9 +53,5 @@ func RetrieveOthr(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	expt = json.NewEncoder(w).Encode(rslt)
-	if expt != nil {
-		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
-		return
-	}
+	_ = json.NewEncoder(w).Encode(rslt)
 }

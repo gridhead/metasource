@@ -16,7 +16,7 @@ func GenerateIdentity(length *int64) string {
 	return fmt.Sprintf("%x", randBytes)
 }
 
-func InitPath(vers *string, loca *string) error {
+var InitPath = func(vers *string, loca *string) error {
 	var expt error
 
 	_, expt = os.Stat(*loca)

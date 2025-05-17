@@ -36,7 +36,7 @@ func WithdrawArchives(unit *home.FileUnit, vers *string, wait *sync.WaitGroup, c
 
 	path = filepath.Clean(filepath.Join(*loca, "/sxml/", name))
 
-	otpt, expt = os.Create(path)  // #nosec G304 -- path is verified and cleaned
+	otpt, expt = os.Create(path) // #nosec G304 -- path is verified and cleaned
 	if expt != nil {
 		unit.Keep = false
 		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Extraction failed for %s due to %s", *vers, name, expt.Error()))

@@ -14,7 +14,9 @@ import (
 	"time"
 )
 
-func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *int, loca *string) error {
+var DownloadRepositories func(unit *home.FileUnit, vers *string, stab int64, cast *int, loca *string) error
+
+func DownloadRepositoriesMill(unit *home.FileUnit, vers *string, stab int64, cast *int, loca *string) error {
 	if stab >= config.ATTEMPTS {
 		unit.Keep = false
 		return fmt.Errorf("most attempts failed")
@@ -33,7 +35,7 @@ func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *i
 	urlx = unit.Path
 	path = filepath.Clean(filepath.Join(*loca, "/comp/", name))
 
-	file, expt = os.Create(path)  // #nosec G304 -- path is verified and cleaned
+	file, expt = os.Create(path) // #nosec G304 -- path is verified and cleaned
 	if expt != nil {
 		stab += 1
 		slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Stab failed for %s due to %s", *vers, unit.Name, expt.Error()))
@@ -70,4 +72,9 @@ func DownloadRepositories(unit *home.FileUnit, vers *string, stab int64, cast *i
 	*cast++
 	slog.Log(context.Background(), slog.LevelDebug, fmt.Sprintf("[%s] Stab complete for %s", *vers, unit.Name))
 	return nil
+}
+
+func init() {
+	// Sigh, so many hoops to jump to mock recursive functions
+	DownloadRepositories = DownloadRepositoriesMill
 }
