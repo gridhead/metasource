@@ -36,7 +36,7 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	var castupGenerate, entireGenerate int
 	var castupSignalDB, entireSignalDB int
 	var wait sync.WaitGroup
-	var pack int64
+	var pack int
 
 	loca = fmt.Sprintf("%s/.%s-%s", config.DBFOLDER, unit.Name, GenerateIdentity(&config.RANDOM_LENGTH))
 
