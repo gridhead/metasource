@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func ReadPrmy(vers *string, name *string) (home.PackUnit, string, error) {
+var ReadPrmy = func(vers *string, name *string) (home.PackUnit, string, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt

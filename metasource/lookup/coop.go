@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func ReadCoop(vers *string, pack *home.PackUnit, repo *string) ([]string, error) {
+var ReadCoop = func(vers *string, pack *home.PackUnit, repo *string) ([]string, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt
