@@ -95,3 +95,39 @@ https://metasource.gridhead.net/
     ```
 12. Consider contributing to the project with methods that you see feasible.
 
+### Containerized deployment
+
+1.  Ensure the most recent version of `podman` is installed.
+    ```
+    $ sudo dnf install podman
+    ```
+    _For more informations about installation visit [Podman Docs](https://podman.io/docs/installation)_
+2.  Clone the repository contents to your local projects directory.
+    ```
+    $ git clone https://github.com/gridhead/metasource.git
+    ```
+3.  Make the cloned repository your present working directory.
+    ```
+    $ cd metasource
+    ```
+4.  Build the image.
+    ```
+    $ podman image build . -t metasource:latest
+    ```
+5.  Download the database.
+    ```
+    $ podman run \
+        --volume="metasource_db:/app/metasource_db" \
+        --name="metasource" --rm \
+        --detach metasource:latest \
+        ./meta -location /app/metasource_db database
+    ```
+6.  Run the container.
+    ```
+    $ podman run \
+        --volume="metasource_db:/app/metasource_db" \
+        --publish="8080:8080" \
+        --name="metasource" \
+        --detach metasource:latest \
+        ./meta -location /app/metasource_db dispense
+    ```
