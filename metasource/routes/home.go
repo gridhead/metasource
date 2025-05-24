@@ -14,53 +14,67 @@ import (
 )
 
 //go:embed shapes/home.html
-var homeHTML []byte
+var HomeHTML []byte
 
-func LastModified(list []string) (map[string]page.Vary, error) {
+var LastModified = func(list []string) map[string]page.Vary {
+	var info_primary, info_filelists, info_changelog os.FileInfo
 	datelist := map[string]page.Vary{}
 
-	for _, name := range list {
-		name_primary := fmt.Sprintf("metasource-%s-primary.sqlite", name)
-		location_primary := fmt.Sprintf("%s/%s", config.DBFOLDER, name_primary)
-		name_changelog := fmt.Sprintf("metasource-%s-other.sqlite", name)
-		location_changelog := fmt.Sprintf("%s/%s", config.DBFOLDER, name_changelog)
-		name_filelists := fmt.Sprintf("metasource-%s-filelists.sqlite", name)
-		location_filelists := fmt.Sprintf("%s/%s", config.DBFOLDER, name_filelists)
-		info_primary, expt := os.Stat(location_primary)
-		if expt != nil {
-			return datelist, expt
+	for _, brch := range list {
+		for _, repo := range []string{"updates-testing", "updates", "testing", ""} {
+			var expt_primary, expt_filelists, expt_changelog error
+			var name_primary, name_filelists, name_changelog string
+			switch repo {
+			case "updates-testing", "updates", "testing":
+				name_primary = fmt.Sprintf("metasource-%s-%s-primary.sqlite", brch, repo)
+				name_filelists = fmt.Sprintf("metasource-%s-%s-filelists.sqlite", brch, repo)
+				name_changelog = fmt.Sprintf("metasource-%s-%s-other.sqlite", brch, repo)
+			default:
+				name_primary = fmt.Sprintf("metasource-%s-primary.sqlite", brch)
+				name_filelists = fmt.Sprintf("metasource-%s-filelists.sqlite", brch)
+				name_changelog = fmt.Sprintf("metasource-%s-other.sqlite", brch)
+			}
+			location_primary := fmt.Sprintf("%s/%s", config.DBFOLDER, name_primary)
+			location_filelists := fmt.Sprintf("%s/%s", config.DBFOLDER, name_filelists)
+			location_changelog := fmt.Sprintf("%s/%s", config.DBFOLDER, name_changelog)
+			if info_primary == nil {
+				info_primary, expt_primary = os.Stat(location_primary)
+			}
+			if info_filelists == nil {
+				info_filelists, expt_filelists = os.Stat(location_filelists)
+			}
+			if info_changelog == nil {
+				info_changelog, expt_changelog = os.Stat(location_changelog)
+			}
+			if expt_primary != nil || expt_filelists != nil || expt_changelog != nil {
+				continue
+			}
 		}
-		info_changelog, expt := os.Stat(location_changelog)
-		if expt != nil {
-			return datelist, expt
-		}
-		info_filelists, expt := os.Stat(location_filelists)
-		if expt != nil {
-			return datelist, expt
-		}
-		datelist[name] = page.Vary{
-			Primary: page.Date{
-				When: info_primary.ModTime().Format("2006-01-02 15:04:05 MST"),
-				Past: humanize.Time(info_primary.ModTime()),
-			},
-			Changelog: page.Date{
-				When: info_changelog.ModTime().Format("2006-01-02 15:04:05 MST"),
-				Past: humanize.Time(info_changelog.ModTime()),
-			},
-			Filelists: page.Date{
-				When: info_filelists.ModTime().Format("2006-01-02 15:04:05 MST"),
-				Past: humanize.Time(info_filelists.ModTime()),
-			},
-			Safe: strings.Replace(name, ".", "_", -1),
+		if info_primary != nil && info_filelists != nil && info_changelog != nil {
+			datelist[brch] = page.Vary{
+				Primary: page.Date{
+					When: info_primary.ModTime().Format("2006-01-02 15:04:05 MST"),
+					Past: humanize.Time(info_primary.ModTime()),
+				},
+				Changelog: page.Date{
+					When: info_changelog.ModTime().Format("2006-01-02 15:04:05 MST"),
+					Past: humanize.Time(info_changelog.ModTime()),
+				},
+				Filelists: page.Date{
+					When: info_filelists.ModTime().Format("2006-01-02 15:04:05 MST"),
+					Past: humanize.Time(info_filelists.ModTime()),
+				},
+				Safe: strings.Replace(brch, ".", "_", -1),
+			}
 		}
 	}
-	return datelist, nil
+	return datelist
 }
 
 func RetrieveHome(w http.ResponseWriter, r *http.Request) {
 	var expt error
 
-	tmpl, expt := template.New("home").Parse(string(homeHTML))
+	tmpl, expt := template.New("home").Parse(string(HomeHTML))
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
 		return
@@ -68,13 +82,6 @@ func RetrieveHome(w http.ResponseWriter, r *http.Request) {
 
 	list, expt := lookup.ReadBranches()
 	if expt != nil {
-		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
-		return
-	}
-
-	dict, expt := LastModified(list)
-	if expt != nil {
-		fmt.Println("Hello %s", expt)
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
 		return
 	}
@@ -159,14 +166,10 @@ func RetrieveHome(w http.ResponseWriter, r *http.Request) {
 		Vers: "v0.1.0",
 		Host: "metasource.gridhead.net",
 		Conn: "https",
-		Dict: dict,
+		Dict: LastModified(list),
 		Park: park,
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	expt = tmpl.Execute(w, data)
-	if expt != nil {
-		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
-		return
-	}
+	_ = tmpl.Execute(w, data)
 }

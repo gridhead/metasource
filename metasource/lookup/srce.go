@@ -10,7 +10,7 @@ import (
 	"regexp"
 )
 
-func ReadSrce(vers *string, name *string) (home.PackUnit, string, error) {
+var ReadSrce = func(vers *string, name *string) (home.PackUnit, string, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt
@@ -36,13 +36,14 @@ func ReadSrce(vers *string, name *string) (home.PackUnit, string, error) {
 			continue
 		}
 		exst = true
+		break
 	}
 
 	if !exst {
 		return rslt, item, fmt.Errorf("database file does not exist")
 	}
 
-	base, expt = sql.Open("sqlite3", path)
+	base, expt = sql.Open(config.DBDRIVER, path)
 	if expt != nil {
 		return rslt, item, expt
 	}
@@ -56,10 +57,7 @@ func ReadSrce(vers *string, name *string) (home.PackUnit, string, error) {
 	}
 	defer stmt.Close()
 
-	rows, expt = stmt.Query(*name + "-%")
-	if expt != nil {
-		return rslt, item, expt
-	}
+	rows, _ = stmt.Query(*name + "-%")
 	defer rows.Close()
 
 	for rows.Next() {

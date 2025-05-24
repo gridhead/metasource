@@ -9,14 +9,14 @@ import (
 	"os"
 )
 
-func ReadExtn(vers *string, pack *home.PackUnit, repo *string) (home.ExtnUnit, error) {
+var ReadExtn = func(vers *string, pack *home.PackUnit, repo *string) (home.ExtnUnit, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt
 	var expt error
-	var item, path, sqlq, pkit string
+	var item, path, sqlq string
 	var dpit home.DepsUnit
-	var list, pkls []string
+	var list []string
 	var rslt home.ExtnUnit
 	var dpls []home.DepsUnit
 
@@ -42,7 +42,7 @@ func ReadExtn(vers *string, pack *home.PackUnit, repo *string) (home.ExtnUnit, e
 		return rslt, expt
 	}
 
-	base, expt = sql.Open("sqlite3", path)
+	base, expt = sql.Open(config.DBDRIVER, path)
 	if expt != nil {
 		return rslt, expt
 	}
@@ -59,10 +59,7 @@ func ReadExtn(vers *string, pack *home.PackUnit, repo *string) (home.ExtnUnit, e
 		}
 		defer stmt.Close()
 
-		rows, expt = stmt.Query(pack.Key)
-		if expt != nil {
-			return rslt, expt
-		}
+		rows, _ = stmt.Query(pack.Key)
 		defer rows.Close()
 
 		for rows.Next() {
@@ -71,11 +68,6 @@ func ReadExtn(vers *string, pack *home.PackUnit, repo *string) (home.ExtnUnit, e
 				return rslt, expt
 			}
 			dpls = append(dpls, dpit)
-		}
-
-		expt = rows.Err()
-		if expt != nil {
-			return rslt, expt
 		}
 
 		switch item {
@@ -98,24 +90,9 @@ func ReadExtn(vers *string, pack *home.PackUnit, repo *string) (home.ExtnUnit, e
 		}
 	}
 
-	if pack.Source.String != "" {
-		sqlq = fmt.Sprintf(config.OBTAIN_CO_PACKAGE)
-		pkls = []string{}
-
-		stmt, expt = base.Prepare(sqlq)
-		if expt != nil {
-			return rslt, expt
-		}
-		defer stmt.Close()
-
-		for rows.Next() {
-			expt = rows.Scan(&pkit)
-			if expt != nil {
-				return rslt, expt
-			}
-			pkls = append(pkls, pkit)
-		}
-		rslt.CoPackages = pkls
+	rslt.CoPackages, expt = ReadCoop(vers, pack, repo)
+	if expt != nil {
+		return rslt, expt
 	}
 
 	return rslt, expt

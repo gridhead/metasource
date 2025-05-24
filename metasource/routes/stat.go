@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"metasource/metasource/config"
 	"net/http"
 )
 
@@ -11,7 +12,7 @@ import (
 var static embed.FS
 
 func RetrieveStatic(w http.ResponseWriter, r *http.Request) {
-	assets, expt := fs.Sub(static, "assets")
+	assets, expt := fs.Sub(static, config.ASSETSDB)
 	if expt != nil {
 		http.Error(w, fmt.Sprintf("%d: %s", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError)), http.StatusInternalServerError)
 		return
