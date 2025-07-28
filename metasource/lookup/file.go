@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func ReadFile(vers *string, pack *home.PackUnit, repo *string) (home.FilelistRslt, error) {
+var ReadFile = func(vers *string, pack *home.PackUnit, repo *string) (home.FilelistRslt, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt
@@ -30,7 +30,7 @@ func ReadFile(vers *string, pack *home.PackUnit, repo *string) (home.FilelistRsl
 		return rslt, expt
 	}
 
-	base, expt = sql.Open("sqlite3", path)
+	base, expt = sql.Open(config.DBDRIVER, path)
 	if expt != nil {
 		return rslt, expt
 	}
@@ -44,10 +44,7 @@ func ReadFile(vers *string, pack *home.PackUnit, repo *string) (home.FilelistRsl
 	}
 	defer stmt.Close()
 
-	rows, expt = stmt.Query(pack.Id)
-	if expt != nil {
-		return rslt, expt
-	}
+	rows, _ = stmt.Query(pack.Id)
 	defer rows.Close()
 
 	for rows.Next() {
@@ -56,11 +53,6 @@ func ReadFile(vers *string, pack *home.PackUnit, repo *string) (home.FilelistRsl
 			return rslt, expt
 		}
 		rslt.List = append(rslt.List, flit)
-	}
-
-	expt = rows.Err()
-	if expt != nil {
-		return rslt, expt
 	}
 
 	return rslt, expt

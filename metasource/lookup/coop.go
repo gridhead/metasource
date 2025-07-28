@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func ReadCoop(vers *string, pack *home.PackUnit, repo *string) ([]string, error) {
+var ReadCoop = func(vers *string, pack *home.PackUnit, repo *string) ([]string, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt
@@ -31,7 +31,7 @@ func ReadCoop(vers *string, pack *home.PackUnit, repo *string) ([]string, error)
 		return rslt, expt
 	}
 
-	base, expt = sql.Open("sqlite3", path)
+	base, expt = sql.Open(config.DBDRIVER, path)
 	if expt != nil {
 		return rslt, expt
 	}
@@ -45,10 +45,7 @@ func ReadCoop(vers *string, pack *home.PackUnit, repo *string) ([]string, error)
 	}
 	defer stmt.Close()
 
-	rows, expt = stmt.Query(pack.Source.String)
-	if expt != nil {
-		return rslt, expt
-	}
+	rows, _ = stmt.Query(pack.Source.String)
 	defer rows.Close()
 
 	for rows.Next() {
@@ -59,11 +56,6 @@ func ReadCoop(vers *string, pack *home.PackUnit, repo *string) ([]string, error)
 		if cpit.Valid {
 			rslt = append(rslt, cpit.String)
 		}
-	}
-
-	expt = rows.Err()
-	if expt != nil {
-		return rslt, expt
 	}
 
 	return rslt, expt

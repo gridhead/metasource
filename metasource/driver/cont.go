@@ -11,7 +11,7 @@ func GenerateSignal(unit *home.FileUnit, cast *int) error {
 	var base *sql.DB
 	var expt error
 
-	base, expt = sql.Open("sqlite3", unit.Path)
+	base, expt = sql.Open(config.DBDRIVER, unit.Path)
 	if expt != nil {
 		unit.Keep = false
 		return expt

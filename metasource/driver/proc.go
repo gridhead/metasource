@@ -2,41 +2,29 @@ package driver
 
 import (
 	"context"
-	"encoding/xml"
 	"fmt"
-	"io"
 	"log/slog"
 	"metasource/metasource/config"
 	"metasource/metasource/models/home"
-	"metasource/metasource/models/sxml"
 	"metasource/metasource/reader"
-	"net/http"
 	"strings"
 	"sync"
-	"time"
 )
 
-func HandleRepositories(unit *home.LinkUnit) error {
-	var mdlink, name, path, loca string
+var HandleRepositories = func(unit *home.LinkUnit) error {
+	var path, loca string
 	var prmyinpt, fileinpt, othrinpt string
 	var prmyname, filename, othrname string
 	var prmypath, filepath, othrpath string
 	var expt error
-	var oper *http.Client
-	var rqst *http.Request
-	var resp *http.Response
-	var repo sxml.RepoMD
-	var hash home.Checksum
-	var body []byte
 	var list []home.FileUnit
-	var file home.FileUnit
 	var castupDownload, entireDownload int
 	var castupWithdraw, entireWithdraw int
 	var castupChecksum, entireChecksum int
 	var castupGenerate, entireGenerate int
 	var castupSignalDB, entireSignalDB int
 	var wait sync.WaitGroup
-	var pack int64
+	var pack int
 
 	loca = fmt.Sprintf("%s/.%s-%s", config.DBFOLDER, unit.Name, GenerateIdentity(&config.RANDOM_LENGTH))
 
@@ -45,49 +33,10 @@ func HandleRepositories(unit *home.LinkUnit) error {
 	entireChecksum = 3
 	entireGenerate = 3
 	entireSignalDB = 1
-	mdlink = fmt.Sprintf("%s/repomd.xml", unit.Link)
 
-	rqst, expt = http.NewRequest("GET", mdlink, nil)
+	list, expt = ReadMetadata(unit)
 	if expt != nil {
 		return expt
-	}
-
-	oper = &http.Client{Timeout: time.Second * 60}
-	resp, expt = oper.Do(rqst)
-	if expt != nil || resp.StatusCode != 200 {
-		if expt != nil {
-			return expt
-		}
-		if resp.StatusCode != 200 {
-			return fmt.Errorf("%s", resp.Status)
-		}
-	}
-	defer resp.Body.Close()
-
-	body, expt = io.ReadAll(resp.Body)
-	if expt != nil {
-		return expt
-	}
-
-	expt = xml.Unmarshal(body, &repo)
-	if expt != nil {
-		return expt
-	}
-
-	for _, item := range repo.Data {
-		if item.Type != "primary" && item.Type != "filelists" && item.Type != "other" {
-			continue
-		}
-
-		if !strings.Contains(item.Location.Href, ".xml") {
-			continue
-		}
-
-		name = strings.Replace(item.Location.Href, "repodata/", "", -1)
-		path = fmt.Sprintf("%s/%s", unit.Link, name)
-		hash = home.Checksum{Data: item.ChecksumOpen.Data, Type: item.ChecksumOpen.Type}
-		file = home.FileUnit{Name: name, Path: path, Type: item.Type, Hash: hash, Keep: true}
-		list = append(list, file)
 	}
 
 	expt = InitPath(&unit.Name, &loca)

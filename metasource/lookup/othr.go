@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func ReadOthr(vers *string, pack *home.PackUnit, repo *string) (home.OthrRslt, error) {
+var ReadOthr = func(vers *string, pack *home.PackUnit, repo *string) (home.OthrRslt, error) {
 	var base *sql.DB
 	var rows *sql.Rows
 	var stmt *sql.Stmt
@@ -30,7 +30,7 @@ func ReadOthr(vers *string, pack *home.PackUnit, repo *string) (home.OthrRslt, e
 		return rslt, expt
 	}
 
-	base, expt = sql.Open("sqlite3", path)
+	base, expt = sql.Open(config.DBDRIVER, path)
 	if expt != nil {
 		return rslt, expt
 	}
@@ -44,10 +44,7 @@ func ReadOthr(vers *string, pack *home.PackUnit, repo *string) (home.OthrRslt, e
 	}
 	defer stmt.Close()
 
-	rows, expt = stmt.Query(pack.Id)
-	if expt != nil {
-		return rslt, expt
-	}
+	rows, _ = stmt.Query(pack.Id)
 	defer rows.Close()
 
 	for rows.Next() {
@@ -56,11 +53,6 @@ func ReadOthr(vers *string, pack *home.PackUnit, repo *string) (home.OthrRslt, e
 			return rslt, expt
 		}
 		rslt.List = append(rslt.List, lgit)
-	}
-
-	expt = rows.Err()
-	if expt != nil {
-		return rslt, expt
 	}
 
 	return rslt, expt

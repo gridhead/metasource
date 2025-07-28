@@ -15,7 +15,7 @@ import (
 	"unsafe"
 )
 
-func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, othrinpt *string, prmyname *string, filename *string, othrname *string, prmypath *string, filepath *string, othrpath *string) (int64, error) {
+func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, othrinpt *string, prmyname *string, filename *string, othrname *string, prmypath *string, filepath *string, othrpath *string) (int, error) {
 	var gexp *C.GError
 	var expt error
 	var iter *C.cr_PkgIterator
@@ -26,7 +26,7 @@ func MakeDatabase(vers *string, cast *int, prmyinpt *string, fileinpt *string, o
 	var prmyover, fileover, othrover chan bool
 	var prmyover_main, fileover_main, othrover_main bool
 	var pack *C.cr_Package
-	var numb int64
+	var numb int
 	var head string
 
 	prmyconv = C.CString(*prmyinpt)
