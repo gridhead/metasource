@@ -32,6 +32,16 @@ wipe:
 	@echo "Cleaning files..."
 	@rm -f meta coverage.out index.html
 
+.PHONY: cook
+cook:
+	@echo "Building image..."
+	@podman build --security-opt label=disable --tag t0xic0der/metasource:latest .
+
+.PHONY: chow
+chow:
+	@echo "Starting container..."
+	@podman run --security-opt label=disable --publish 8080:8080 --volume /var/tmp/xyz:/db t0xic0der/metasource:latest -loglevel info -location /db dispense
+
 .PHONY: help
 help:
 	@echo "Available targets:"
@@ -39,4 +49,6 @@ help:
 	@echo "  lint - Analyze codebase"
 	@echo "  test - Run testcases"
 	@echo "  wipe - Clean files"
+	@echo "  cook - Build image"
+	@echo "  chow - Start container"
 	@echo "  help - Show documentation"
