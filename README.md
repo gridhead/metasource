@@ -12,6 +12,12 @@ o888o o888o o888o `Y8bod8P'   "888" `Y888""8o 8""888P' `Y8bod8P'  `V88V"V8P' d88
 Performant source for RPM repositories metadata                                                    v0.1.0
 ```
 
+## Disclaimer
+
+As the [successor](https://discussion.fedoraproject.org/t/introducing-metasource-or-metasaurus/147190) to [MDAPI](https://mdapi.fedoraproject.org/), the [MetaSource](https://github.com/gridhead/metasource) codebase is now maintained under the [Fedora Infrastructure](https://github.com/fedora-infra) namespace. This repository will be archived and left unmaintained as of 30 July 2025. All [future contributions](https://github.com/fedora-infra/mdapi/graphs/contributors) are expected to be made to the [Fedora Infrastructure](https://github.com/fedora-infra/mdapi) namespace. Please find more contextual information in the [Fedora Discussion](https://discussion.fedoraproject.org/) posts - [The Future Of MDAPI](https://discussion.fedoraproject.org/t/the-future-of-mdapi/146852) and [Introducing Metasource (or Metasaurus)](https://discussion.fedoraproject.org/t/introducing-metasource-or-metasaurus/147190).
+
+## Introduction
+
 MetaSource is a performant source for RPM repositories metadata which has an access to the metadata of the different Fedora Linux package repositories and will serve you the most recent information available. It will parse through the "updates-testing" repository before moving onto the likes of "updates" and "releases" repository if no information is found in the previous repository.
 
 Utilize the fast lookup interface to acquaint yourself with the API endpoints and expected outputs. Press `ENTER` after typing the name to execute a lookup in a new window. If you query for a non-existent branch - it will return an **HTTP 400** error. If you query for a non-existent package - it will return an **HTTP 404** error. Please report persistent **HTTP 500** errors to the [Fedora Infrastructure](https://pagure.io/fedora-infrastructure/issues) team.
